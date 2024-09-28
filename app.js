@@ -72,11 +72,15 @@ app.delete('/expenses/delete-all', async (req, res) => {
 
 const recipeSchema = new mongoose.Schema({
     recipeName: String,
-    itemName: String,
-    content: Number,
-    unitPrice: Number,
-    amountUsage: Number,
-    amountFee: Number,
+    items: [
+      {
+        itemName: String,
+        content: Number,
+        unitPrice: Number,
+        amountUsage: Number,
+        amountFee: Number,
+      }
+    ]
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);
@@ -96,31 +100,28 @@ app.get('/recipes/recipeRegister', async (req, res) => {
 // レシピを追加
 app.post('/recipes', async (req, res) => {
     try {
-        const {
-            recipeName,
-            itemName,
-            content = 0,  // デフォルト値を設定
-            unitPrice = 0, // デフォルト値を設定
-            amountUsage = 0, // デフォルト値を設定
-            amountFee = 0 // デフォルト値を設定
-        } = req.body;
-
-        const newRecipe = new Recipe({
-            recipeName,
-            itemName,
-            content,
-            unitPrice,
-            amountUsage,
-            amountFee
-        });
-
-        await newRecipe.save();
-        res.redirect('/recipes/recipeRegister');
+      const { recipeName, itemName, content = 0, unitPrice = 0, amountUsage = 0, amountFee = 0 } = req.body;
+  
+      // 既存のレシピがあるか確認
+      let recipe = await Recipe.findOne({ recipeName });
+  
+      if (!recipe) {
+        // 既存のレシピがなければ新規作成
+        recipe = new Recipe({ recipeName, items: [] });
+      }
+  
+      // 新しいアイテムを追加
+      recipe.items.push({ itemName, content, unitPrice, amountUsage, amountFee });
+  
+      // 保存
+      await recipe.save();
+      res.redirect('/recipes/recipeRegister');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+      console.error(error);
+      res.status(500).send('Server Error');
     }
 });
+  
 
 
 

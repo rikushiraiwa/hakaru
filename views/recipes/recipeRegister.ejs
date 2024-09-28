@@ -30,17 +30,19 @@
                 </thead>
                 <tbody>
                     <% recipeData.forEach(function(recipe) { %>
+                        <% recipe.items.forEach(function(item) { %>
                         <tr>
                             <td><input type="checkbox" name="ids" value="<%= recipe._id %>"></td>
                             <td><%= recipe.recipeName %></td>
-                            <td><%= recipe.itemName %></td>
-                            <td><%= recipe.content %></td>
-                            <td><%= recipe.unitPrice %></td>
-                            <td><%= recipe.amountUsage %></td>
-                            <td><%= recipe.amountFee %></td>
+                            <td><%= item.itemName %></td>
+                            <td><%= item.content %></td>
+                            <td><%= item.unitPrice %></td>
+                            <td><%= item.amountUsage %></td>
+                            <td><%= item.amountFee %></td>
                         </tr>
+                        <% }) %>
                     <% }) %>
-                </tbody>
+                </tbody>                
             </table>
         </form>
 
