@@ -86,16 +86,68 @@ const recipeSchema = new mongoose.Schema({
 const Recipe = mongoose.model('Recipe', recipeSchema);
 
 
+
 // ルート定義（app.js）
-app.get('/recipes', async (req, res) => {
-    res.render('recipes/recipeHome');  // views/recipes/recipeHome.ejsをレンダリング
+app.get('/recipeHome', async (req, res) => {
+  try {
+      // MongoDBから全てのレシピを取得
+      const recipes = await Recipe.find({});
+      
+      // 取得したレシピを `recipeHome.ejs` テンプレートに渡す
+      res.render('recipes/recipeHome', { recipes });
+  } catch (error) {
+      console.error('Error fetching recipes:', error);
+      res.status(500).send('Server Error');
+  }
 });
 
+
 // レシピ登録ページの表示
-app.get('/recipes/recipeRegister', async (req, res) => {
-    const recipes = await Recipe.find({});
-    res.render('recipes/recipeRegister', { recipeData: recipes });
+// app.get('/recipes/recipeRegister', async (req, res) => {
+//     const recipes = await Recipe.find({});
+//     res.render('recipes/recipeRegister', { recipeData: recipes });
+// });
+// 新しいレシピ登録用のルート (空のフォームを表示)
+app.get('/recipes/recipeRegister', (req, res) => {
+  // 空のデータを渡す
+  res.render('recipes/recipeRegister', { recipeData: [] });
 });
+
+// 既存のレシピ編集用のルート
+app.get('/recipes/edit/:id', async (req, res) => {
+  const recipe = await Recipe.findById(req.params.id);
+  res.render('recipes/recipeEdit', { recipe });
+});
+
+// 既存レシピの更新
+app.put('/recipes/edit/:id', async (req, res) => {
+  try {
+      console.log('Request body:', req.body);  // 送信されたデータを確認
+      const { recipeName, items } = req.body;
+
+      // itemsが配列として送信されているか確認
+      if (!Array.isArray(items)) {
+          throw new Error('Items should be an array');
+      }
+
+      // レシピを更新
+      const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, { recipeName, items }, { new: true });
+
+      if (!updatedRecipe) {
+          throw new Error('Recipe not found');
+      }
+
+      console.log('Recipe updated successfully:', updatedRecipe);
+      res.redirect('/recipeHome');
+  } catch (error) {
+      console.error('Error updating recipe:', error.message);
+      res.status(500).send('Server Error: ' + error.message);
+  }
+});
+
+
+
+
 
 // レシピを追加
 app.post('/recipes', async (req, res) => {
