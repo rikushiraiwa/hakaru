@@ -28,18 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% recipeData.forEach(function(recipe) { %>
-                        <% recipe.items.forEach(function(item) { %>
-                        <tr>
-                            <td><input type="checkbox" name="ids" value="<%= recipe._id %>"></td>
-                            <td><%= item.itemName %></td>
-                            <td><%= item.content %></td>
-                            <td><%= item.unitPrice %></td>
-                            <td><%= item.amountUsage %></td>
-                            <td><%= item.amountFee %></td>
-                        </tr>
-                        <% }) %>
-                    <% }) %>
+                    
                 </tbody>
             </table>
         </form>
