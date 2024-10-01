@@ -20,7 +20,6 @@
                 <thead class="thead-light">
                     <tr>
                         <th>Select</th>
-                        <th>Recipe Name</th>
                         <th>Item Name</th>
                         <th>Content</th>
                         <th>Unit Price</th>
@@ -33,7 +32,6 @@
                         <% recipe.items.forEach(function(item) { %>
                         <tr>
                             <td><input type="checkbox" name="ids" value="<%= recipe._id %>"></td>
-                            <td><%= recipe.recipeName %></td>
                             <td><%= item.itemName %></td>
                             <td><%= item.content %></td>
                             <td><%= item.unitPrice %></td>
@@ -42,7 +40,7 @@
                         </tr>
                         <% }) %>
                     <% }) %>
-                </tbody>                
+                </tbody>
             </table>
         </form>
 
@@ -56,7 +54,7 @@
                     </div>
                     <div class="modal-body">
                         <!-- レシピ追加用のフォーム（recipeNameはモーダル外で入力） -->
-                        <form id="recipeForm" action="/recipes" method="POST">
+                        <form id="recipeForm">
                             <input type="hidden" name="recipeName" id="recipeNameHidden">
 
                             <div class="form-group">
@@ -81,7 +79,7 @@
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-success m-4">Add Recipe</button>
+                                <button type="button" class="btn btn-success m-4" onclick="addRecipe()">Add Recipe</button>
                             </div>
                         </form>
                     </div>
@@ -89,7 +87,12 @@
             </div>
         </div>
 
-        <div class="total-container text-right">
+        <!-- レシピ全体を保存 -->
+        <div class="text-center mt-3">
+            <button class="btn btn-primary" onclick="submitRecipe()">Save Recipe</button>
+        </div>
+
+        <div class="total-container text-right mt-3">
             <p class="font-weight-bold">Total: <span id="totalValue"></span></p>
         </div>
     </div>

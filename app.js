@@ -14,6 +14,7 @@ mongoose.connect('mongodb://localhost:27017/hakaru')
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));  // viewsフォルダをテンプレートの場所に指定
 app.use(express.static(path.join(__dirname, 'public')));  // 静的ファイルの提供
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(methodOverride('_method'));
@@ -151,28 +152,36 @@ app.put('/recipes/edit/:id', async (req, res) => {
 
 // レシピを追加
 app.post('/recipes', async (req, res) => {
-    try {
-      const { recipeName, itemName, content = 0, unitPrice = 0, amountUsage = 0, amountFee = 0 } = req.body;
-  
+  try {
+      const { recipeName, items } = req.body;
+
+      if (!recipeName || !items || items.length === 0) {
+          return res.status(400).json({ message: 'Recipe name and items are required' });
+      }
+
       // 既存のレシピがあるか確認
       let recipe = await Recipe.findOne({ recipeName });
-  
+
       if (!recipe) {
-        // 既存のレシピがなければ新規作成
-        recipe = new Recipe({ recipeName, items: [] });
+          // 既存のレシピがなければ新規作成
+          recipe = new Recipe({ recipeName, items: [] });
       }
-  
+
       // 新しいアイテムを追加
-      recipe.items.push({ itemName, content, unitPrice, amountUsage, amountFee });
-  
+      recipe.items = items;
+
       // 保存
       await recipe.save();
-      res.redirect('/recipes/recipeRegister');
-    } catch (error) {
+      res.status(200).json({ message: 'Recipe saved successfully', recipe }); // JSONレスポンスを返す
+  } catch (error) {
       console.error(error);
-      res.status(500).send('Server Error');
-    }
+      res.status(500).json({ message: 'Server Error' });
+  }
 });
+
+
+
+
   
 
 
