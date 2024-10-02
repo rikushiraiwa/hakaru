@@ -11,44 +11,45 @@
             <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addExpenseModal">Add Expense</button>
         </div>
 
-       
+        <!-- レスポンシブ対応のテーブル -->
         <form id="deleteForm" action="/expenses/delete?_method=DELETE" method="POST">
-            <table id="expenseTable" class="table table-bordered table-striped table-hover table-sm">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Select</th>
-                        <th>Date</th>
-                        <th>Content</th>
-                        <th>Supplier</th>
-                        <th>Purchase</th>
-                        <th>Consumable</th>
-                        <th>Other Expense</th>
-                        <th>Shipping Cost</th>
-                        <th>Purchase Discount</th>
-                        <th>Cash</th>
-                        <th>Credit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% expenseData.forEach(function(expense) { %>
+            <div class="table-responsive">
+                <table id="expenseTable" class="table table-bordered table-striped table-hover table-sm">
+                    <thead class="thead-light">
                         <tr>
-                            <td><input type="checkbox" name="ids" value="<%= expense._id %>"></td>
-                            <td><%= expense.date %></td>
-                            <td><%= expense.content %></td>
-                            <td><%= expense.supplier %></td>
-                            <td><%= expense.purchase %></td>
-                            <td><%= expense.consumable %></td>
-                            <td><%= expense.otherExpense %></td>
-                            <td><%= expense.shippingCost %></td>
-                            <td><%= expense.purchaseDiscount %></td>
-                            <td><%= expense.cash %></td>
-                            <td><%= expense.credit %></td>
+                            <th>Select</th>
+                            <th>Date</th>
+                            <th>Content</th>
+                            <th>Supplier</th>
+                            <th>Purchase</th>
+                            <th>Consumable</th>
+                            <th>Other Expense</th>
+                            <th>Shipping Cost</th>
+                            <th>Purchase Discount</th>
+                            <th>Cash</th>
+                            <th>Credit</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% expenseData.forEach(function(expense) { %>
+                            <tr>
+                                <td><input type="checkbox" name="ids" value="<%= expense._id %>"></td>
+                                <td><%= expense.date %></td>
+                                <td><%= expense.content %></td>
+                                <td><%= expense.supplier %></td>
+                                <td><%= expense.purchase %></td>
+                                <td><%= expense.consumable %></td>
+                                <td><%= expense.otherExpense %></td>
+                                <td><%= expense.shippingCost %></td>
+                                <td><%= expense.purchaseDiscount %></td>
+                                <td><%= expense.cash %></td>
+                                <td><%= expense.credit %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         </form>
-
 
         <!-- Add Expense Modal -->
         <div class="modal fade" id="addExpenseModal" tabindex="-1" role="dialog" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
@@ -117,7 +118,6 @@
             <p class="font-weight-bold">Total: <span id="totalValue"></span></p>
         </div>
     </div>
-
 
     <!-- Confirm Modal for Downloading and Deleting -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">

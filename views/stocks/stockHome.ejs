@@ -1,0 +1,38 @@
+<% layout('layout/boilerplate') %>
+
+
+<div class="container mt-5">
+    <h2 class="text-center">在庫一覧</h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="/stocks/stockRegister" class="btn btn-success">在庫データを登録</a>
+    </div>
+
+
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>商品名</th>
+          <th>購入数量</th>
+          <th>購入価格</th>
+          <th>残量（￥）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% stocks.forEach(stock => { %>
+          <tr>
+            <td><%= stock.date.toLocaleDateString() %></td>
+            <td><%= stock.itemName %></td>
+            <td><%= stock.PurchaseQuantity %></td>
+            <td><%= stock.PurchasePrice %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div>
+
+    </div>
+
+  </div>

@@ -71,6 +71,12 @@ app.delete('/expenses/delete-all', async (req, res) => {
 
 
 
+
+
+
+//Recipes
+
+
 const recipeSchema = new mongoose.Schema({
     recipeName: String,
     items: [
@@ -179,19 +185,106 @@ app.post('/recipes', async (req, res) => {
   }
 });
 
-
-
-
-  
-
-
-
-// レシピの削除
+// レシピの削除,いらないかも
 app.delete('/recipes/delete', async (req, res) => {
     const { ids } = req.body;
     await Recipe.deleteMany({ _id: { $in: ids } });
     res.redirect('/recipes/recipeRegister');
 });
+
+
+
+
+
+
+//Stocks
+
+
+const stockSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  itemName: { type: String, required: true },
+  PurchaseQuantity: { type: Number, required: true },
+  PurchasePrice: { type: Number, required: true }
+});
+
+const Stock = mongoose.model('Stock', stockSchema);
+
+
+app.get('/stocks/stockRegister', (req, res) => {
+  res.render('stocks/stockRegister');
+});
+
+
+app.get('/stockHome', async (req, res) => {
+  try {
+      // MongoDBから全ての在庫データを取得
+      const stocks = await Stock.find({});
+      
+      // 取得した在庫データを `stockList.ejs` テンプレートに渡す
+      res.render('stocks/stockHome', { stocks });
+  } catch (error) {
+      console.error('Error fetching stocks:', error);
+      res.status(500).send('Server Error');
+  }
+});
+
+
+app.post('/stocks/add', async (req, res) => {
+  const { date, itemName, PurchaseQuantity, PurchasePrice } = req.body;
+
+  try {
+      // 日付を日本標準時（JST）に調整
+      const dateObj = new Date(date);
+      const correctedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
+
+      const newStock = new Stock({
+          date: correctedDate,
+          itemName,
+          PurchaseQuantity,
+          PurchasePrice
+      });
+      await newStock.save();
+      res.redirect('/stockHome');
+  } catch (error) {
+      res.status(400).send('Error: ' + error.message);
+  }
+});
+
+
+
+
+
+
+
+
+//solds
+
+app.get('/incomeStatement', (req, res) => {
+  // 必要なデータをテンプレートに渡す
+  res.render('solds/incomeStatement', {
+    registerDate: '',  // ここに適切な初期値を渡すか、DBから取得するデータを渡す
+    customerName: '',
+    productName: '',
+    productPrice: '',
+    orderDate: '',
+    shippingDate: '',
+    payment: '',
+    uncollectedPrice: '',
+    sales: '',
+    salesCommission: '',
+    transferFee: '',
+    shippingFee: '',
+    depositAmount: '',
+    revenue: '',
+    cogs: '',
+    expenses: '',
+    grossProfit: '0',
+    netProfit: '0',
+    netRatio: '0%'
+  });
+});
+
+
 
 
 app.listen(3000, () => {
