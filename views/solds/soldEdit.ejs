@@ -1,0 +1,139 @@
+<% layout('layout/boilerplate') %>
+
+<div class="container my-5">
+    <h1 class="text-center mb-5">Income Statement</h1>
+
+    <!-- フォームの追加 -->
+    <form action="/incomeStatement/update/<%= id %>?_method=PUT" method="POST">
+        <!-- General Information Section -->
+        <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2><i class="fas fa-info-circle"></i> General Information</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Register Date</th>
+                    <th>Customer Name</th>
+                    <th>Product Name</th>
+                    <th>Product Price</th>
+                    <th>Order Date</th>
+                    <th>Shipping Date</th>
+                    <th>Payment</th>
+                    <th>Uncollected Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="date" name="registerDate" value="<%= registerDate %>" class="form-control" required /></td>
+                    <td><input type="text" name="customerName" value="<%= customerName %>" class="form-control" required /></td>
+                    <td><input type="text" name="productName" value="<%= productName %>" class="form-control" required /></td>
+                    <td><input type="number" name="productPrice" value="<%= productPrice %>" class="form-control" required /></td>
+                    <td><input type="date" name="orderDate" value="<%= orderDate %>" class="form-control" required /></td>
+                    <td><input type="date" name="shippingDate" value="<%= shippingDate %>" class="form-control" required /></td>
+                    <td><input type="number" name="payment" value="<%= payment %>" class="form-control" required /></td>
+                    <td><input type="number" name="uncollectedPrice" value="<%= uncollectedPrice %>" class="form-control" required /></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
+
+        <!-- Minne Sales Details Section -->
+        <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h2><i class="fas fa-shopping-cart"></i> Minne Sales Details</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+            <table class="table table-hover">
+                <tbody>
+                <tr>
+                    <th>Sales</th>
+                    <td><input type="number" name="sales" value="<%= sales %>" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <th>Sales Commission</th>
+                    <td><input type="number" name="salesCommission" value="<%= salesCommission %>" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <th>Transfer Fee</th>
+                    <td><input type="number" name="transferFee" value="<%= transferFee %>" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <th>Shipping Fee</th>
+                    <td><input type="number" name="shippingFee" value="<%= shippingFee %>" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <th>Deposit Amount</th>
+                    <td><input type="text" name="depositAmount" value="<%= depositAmount %>" class="form-control" readonly /></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
+
+        <!-- Income Statement Section -->
+        <div class="card shadow-sm">
+        <div class="card-header bg-warning text-white">
+            <h2><i class="fas fa-chart-line"></i> Income Statement</h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+            <div class="col">
+                <label for="revenue" class="form-label">Sales Revenue:</label>
+                <input type="number" name="revenue" id="revenue" value="<%= revenue %>" class="form-control" />
+            </div>
+            <div class="col">
+                <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
+                <input type="number" name="cogs" id="cogs" value="<%= cogs %>" class="form-control" />
+            </div>
+            </div>
+            <div class="row mb-3">
+            <div class="col">
+                <label for="expenses" class="form-label">Operating Expenses:</label>
+                <input type="number" name="expenses" id="expenses" value="<%= expenses %>" class="form-control" />
+            </div>
+            </div>
+            <div class="results">
+            <h3 class="mt-4">Gross Profit: <span id="grossProfit"><%= grossProfit %></span></h3>
+            <h3>Net Profit: <span id="netProfit"><%= netProfit %></span></h3>
+            <h3>Ratio: <span id="netRatio"><%= netRatio %></span> %</h3>
+            </div>
+        </div>
+        </div>
+
+        <!-- Update Button -->
+        <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-lg btn-success">
+              <i class="fas fa-save"></i> Update
+            </button>
+        </div>          
+    </form>
+</div>
+
+<script>
+  function calculateProfits() {
+    const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+    const cogs = parseFloat(document.getElementById('cogs').value) || 0;
+    const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+
+    // Gross Profit 計算
+    const grossProfit = revenue - cogs;
+
+    // Net Profit 計算
+    const netProfit = grossProfit - expenses;
+
+    // Ratio 計算
+    const netRatio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
+
+    // 計算結果を表示
+    document.getElementById('grossProfit').textContent = grossProfit.toFixed(2);
+    document.getElementById('netProfit').textContent = netProfit.toFixed(2);
+    document.getElementById('netRatio').textContent = netRatio;
+  }
+</script>

@@ -3,114 +3,117 @@
 <div class="container my-5">
   <h1 class="text-center mb-5">Income Statement</h1>
 
-  <!-- General Information Section -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-      <h2><i class="fas fa-info-circle"></i> General Information</h2>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Register Date</th>
-              <th>Customer Name</th>
-              <th>Product Name</th>
-              <th>Product Price</th>
-              <th>Order Date</th>
-              <th>Shipping Date</th>
-              <th>Payment</th>
-              <th>Uncollected Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="date" value="<%= registerDate %>" class="form-control" placeholder="Register Date" /></td>
-              <td><input type="text" value="<%= customerName %>" class="form-control" placeholder="Customer Name" /></td>
-              <td><input type="text" value="<%= productName %>" class="form-control" placeholder="Product Name" /></td>
-              <td><input type="number" value="<%= productPrice %>" class="form-control" placeholder="Product Price" /></td>
-              <td><input type="date" value="<%= orderDate %>" class="form-control" placeholder="Order Date" /></td>
-              <td><input type="date" value="<%= shippingDate %>" class="form-control" placeholder="Shipping Date" /></td>
-              <td><input type="number" value="<%= payment %>" class="form-control" placeholder="Payment" /></td>
-              <td><input type="number" value="<%= uncollectedPrice %>" class="form-control" placeholder="Uncollected Price" /></td>
-            </tr>
-          </tbody>
-        </table>
+  <!-- フォームの追加 -->
+  <form action="/incomeStatement/register" method="POST">
+    <!-- General Information Section -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h2><i class="fas fa-info-circle"></i> General Information</h2>
       </div>
-    </div>
-  </div>
-
-  <!-- Minne Sales Details Section -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-success text-white">
-      <h2><i class="fas fa-shopping-cart"></i> Minne Sales Details</h2>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <tbody>
-            <tr>
-              <th>Sales</th>
-              <td><input type="number" id="sales" value="<%= sales %>" class="form-control" placeholder="Sales" oninput="calculateProfits()" /></td>
-            </tr>
-            <tr>
-              <th>Sales Commission</th>
-              <td><input type="number" id="salesCommission" value="<%= salesCommission %>" class="form-control" placeholder="Sales Commission" oninput="calculateProfits()" /></td>
-            </tr>
-            <tr>
-              <th>Transfer Fee</th>
-              <td><input type="number" id="transferFee" value="<%= transferFee %>" class="form-control" placeholder="Transfer Fee" oninput="calculateProfits()" /></td>
-            </tr>
-            <tr>
-              <th>Shipping Fee</th>
-              <td><input type="number" id="shippingFee" value="<%= shippingFee %>" class="form-control" placeholder="Shipping Fee" oninput="calculateProfits()" /></td>
-            </tr>
-            <tr>
-              <th>Deposit Amount</th>
-              <td><input type="text" id="depositAmount" value="<%= depositAmount %>" class="form-control" placeholder="Deposit Amount" readonly /></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Income Statement Section -->
-  <div class="card shadow-sm">
-    <div class="card-header bg-warning text-white">
-      <h2><i class="fas fa-chart-line"></i> Income Statement</h2>
-    </div>
-    <div class="card-body">
-      <div class="row mb-3">
-        <div class="col">
-          <label for="revenue" class="form-label">Sales Revenue:</label>
-          <input type="number" id="revenue" value="<%= revenue %>" class="form-control" placeholder="Sales Revenue" oninput="calculateProfits()" />
-        </div>
-        <div class="col">
-          <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
-          <input type="number" id="cogs" value="<%= cogs %>" class="form-control" placeholder="Cost of Goods Sold (COGS)" oninput="calculateProfits()" />
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Register Date</th>
+                <th>Customer Name</th>
+                <th>Product Name</th>
+                <th>Product Price</th>
+                <th>Order Date</th>
+                <th>Shipping Date</th>
+                <th>Payment</th>
+                <th>Uncollected Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="date" name="registerDate" class="form-control" placeholder="Register Date" required /></td>
+                <td><input type="text" name="customerName" class="form-control" placeholder="Customer Name" required /></td>
+                <td><input type="text" name="productName" class="form-control" placeholder="Product Name" required /></td>
+                <td><input type="number" name="productPrice" class="form-control" placeholder="Product Price" required /></td>
+                <td><input type="date" name="orderDate" class="form-control" placeholder="Order Date" required /></td>
+                <td><input type="date" name="shippingDate" class="form-control" placeholder="Shipping Date" required /></td>
+                <td><input type="number" name="payment" class="form-control" placeholder="Payment" required /></td>
+                <td><input type="number" name="uncollectedPrice" class="form-control" placeholder="Uncollected Price" required /></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="row mb-3">
-        <div class="col">
-          <label for="expenses" class="form-label">Operating Expenses:</label>
-          <input type="number" id="expenses" value="<%= expenses %>" class="form-control" placeholder="Operating Expenses" oninput="calculateProfits()" />
+    </div>
+
+    <!-- Minne Sales Details Section -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white">
+        <h2><i class="fas fa-shopping-cart"></i> Minne Sales Details</h2>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <th>Sales</th>
+                <td><input type="number" name="sales" class="form-control" placeholder="Sales" /></td>
+              </tr>
+              <tr>
+                <th>Sales Commission</th>
+                <td><input type="number" name="salesCommission" class="form-control" placeholder="Sales Commission" /></td>
+              </tr>
+              <tr>
+                <th>Transfer Fee</th>
+                <td><input type="number" name="transferFee" class="form-control" placeholder="Transfer Fee" /></td>
+              </tr>
+              <tr>
+                <th>Shipping Fee</th>
+                <td><input type="number" name="shippingFee" class="form-control" placeholder="Shipping Fee" /></td>
+              </tr>
+              <tr>
+                <th>Deposit Amount</th>
+                <td><input type="text" name="depositAmount" class="form-control" placeholder="Deposit Amount" readonly /></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="results">
-        <h3 class="mt-4">Gross Profit: <span id="grossProfit">0.00</span></h3>
-        <h3>Net Profit: <span id="netProfit">0.00</span></h3>
-        <h3>Ratio: <span id="netRatio">0.00</span> %</h3>
+    </div>
+
+    <!-- Income Statement Section -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-white">
+        <h2><i class="fas fa-chart-line"></i> Income Statement</h2>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col">
+            <label for="revenue" class="form-label">Sales Revenue:</label>
+            <input type="number" name="revenue" id="revenue" class="form-control" placeholder="Sales Revenue" oninput="calculateProfits()" />
+          </div>
+          <div class="col">
+            <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
+            <input type="number" name="cogs" id="cogs" class="form-control" placeholder="Cost of Goods Sold (COGS)" oninput="calculateProfits()" />
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="expenses" class="form-label">Operating Expenses:</label>
+            <input type="number" name="expenses" id="expenses" class="form-control" placeholder="Operating Expenses" oninput="calculateProfits()" />
+          </div>
+        </div>
+        <div class="results">
+          <h3 class="mt-4">Gross Profit: <span id="grossProfit">0.00</span></h3>
+          <h3>Net Profit: <span id="netProfit">0.00</span></h3>
+          <h3>Ratio: <span id="netRatio">0.00</span> %</h3>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Register Button -->
-  <div class="text-center my-4">
-    <button class="btn btn-lg btn-primary" onclick="window.location.href='/Sales'">
-      <i class="fas fa-check"></i> Register
-    </button>
-  </div>
+    <!-- Register Button -->
+    <div class="text-center my-4">
+      <button type="submit" class="btn btn-lg btn-primary">
+        <i class="fas fa-check"></i> Register
+      </button>
+    </div>
+  </form>
 </div>
 
 <script>

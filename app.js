@@ -259,30 +259,169 @@ app.post('/stocks/add', async (req, res) => {
 
 //solds
 
-app.get('/incomeStatement', (req, res) => {
-  // 必要なデータをテンプレートに渡す
-  res.render('solds/incomeStatement', {
-    registerDate: '',  // ここに適切な初期値を渡すか、DBから取得するデータを渡す
-    customerName: '',
-    productName: '',
-    productPrice: '',
-    orderDate: '',
-    shippingDate: '',
-    payment: '',
-    uncollectedPrice: '',
-    sales: '',
-    salesCommission: '',
-    transferFee: '',
-    shippingFee: '',
-    depositAmount: '',
-    revenue: '',
-    cogs: '',
-    expenses: '',
-    grossProfit: '0',
-    netProfit: '0',
-    netRatio: '0%'
-  });
+// IncomeStatementのスキーマを作成
+const incomeStatementSchema = new mongoose.Schema({
+  registerDate: String,
+  customerName: String,
+  productName: String,
+  productPrice: Number,
+  orderDate: String,
+  shippingDate: String,
+  payment: Number,
+  uncollectedPrice: Number,
+  sales: Number,
+  salesCommission: Number,
+  transferFee: Number,
+  shippingFee: Number,
+  depositAmount: Number,
+  revenue: Number,
+  cogs: Number,
+  expenses: Number,
+  grossProfit: Number,
+  netProfit: Number,
+  ratio: Number
 });
+
+const IncomeStatement = mongoose.model('IncomeStatement', incomeStatementSchema);
+
+
+
+// Registerボタンが押されたときにデータを保存
+app.post('/incomeStatement/register', async (req, res) => {
+  try {
+    const { revenue, cogs, expenses } = req.body;
+
+    // Gross Profit, Net Profit, Ratioの計算
+    const grossProfit = revenue - cogs;
+    const netProfit = grossProfit - expenses;
+    const ratio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
+
+    // データベースに保存
+    const newIncomeStatement = new IncomeStatement({
+      ...req.body,
+      grossProfit,
+      netProfit,
+      ratio
+    });
+
+    await newIncomeStatement.save();
+    res.redirect('/soldInfor'); // 保存後にリダイレクト
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+//IncomeStatementページを表示
+app.get('/incomeStatement', (req, res) => {
+  res.render('solds/incomeStatement'); // データはクライアントから入力されるため、初期データは不要
+});
+
+
+// soldInforページを表示
+app.get('/soldInfor', async (req, res) => {
+  try {
+    // MongoDBから全てのIncomeStatementデータを取得
+    const incomeStatements = await IncomeStatement.find({});
+    
+    // soldInforテンプレートにデータを渡す
+    res.render('solds/soldInfor', { incomeStatements });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+
+// IncomeStatement編集用のルート
+app.get('/soldEdit/edit/:id', async (req, res) => {
+  try {
+    // URLからIDを取得
+    const { id } = req.params;
+
+    // MongoDBからIDに基づいてIncomeStatementを取得
+    const statement = await IncomeStatement.findById(id);
+    
+
+    if (!statement) {
+      return res.status(404).send('Income Statement not found');
+    }
+
+    // 取得したデータをテンプレートに渡す
+    res.render('solds/soldEdit', {
+      registerDate: statement.registerDate,
+      orderDate: statement.orderDate,
+      shippingDate: statement.shippingDate,
+      customerName: statement.customerName,
+      productName: statement.productName,
+      productPrice: statement.productPrice,
+      payment: statement.payment,
+      uncollectedPrice: statement.uncollectedPrice,
+      sales: statement.sales,
+      salesCommission: statement.salesCommission,
+      transferFee: statement.transferFee,
+      shippingFee: statement.shippingFee,
+      depositAmount: statement.depositAmount,
+      revenue: statement.revenue,
+      cogs: statement.cogs,
+      expenses: statement.expenses,
+      grossProfit: statement.grossProfit,
+      netProfit: statement.netProfit,
+      netRatio: statement.ratio,
+      id: statement._id
+    });
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// 編集用のPUTルート
+app.put('/incomeStatement/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // リクエストボディからデータを取得
+    const updatedData = {
+      registerDate: req.body.registerDate,
+      customerName: req.body.customerName,
+      productName: req.body.productName,
+      productPrice: req.body.productPrice,
+      orderDate: req.body.orderDate,
+      shippingDate: req.body.shippingDate,
+      payment: req.body.payment,
+      uncollectedPrice: req.body.uncollectedPrice,
+      sales: req.body.sales,
+      salesCommission: req.body.salesCommission,
+      transferFee: req.body.transferFee,
+      shippingFee: req.body.shippingFee,
+      depositAmount: req.body.depositAmount,
+      revenue: req.body.revenue,
+      cogs: req.body.cogs,
+      expenses: req.body.expenses,
+      grossProfit: req.body.grossProfit,
+      netProfit: req.body.netProfit,
+      ratio: req.body.netRatio
+    };
+
+    // MongoDB のデータを更新
+    await IncomeStatement.findByIdAndUpdate(id, updatedData, { new: true });
+
+    // 成功後にリダイレクト
+    res.redirect('/soldInfor');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+
+
 
 
 

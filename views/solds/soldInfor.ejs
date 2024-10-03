@@ -1,0 +1,30 @@
+<% layout('layout/boilerplate') %>
+
+<div class="container my-5">
+  <h1 class="text-center mb-4">Sold Information</h1>
+
+  <div class="text-center">
+    <a href="/incomeStatement" class="btn btn-primary mb-4">
+      Register to Income Statement
+    </a>
+  </div>
+  
+
+  <div class="row">
+    <% incomeStatements.forEach(function(statement) { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body text-center"> <!-- カード全体を中央寄せ -->
+            <h5 class="card-title">Customer: <%= statement.customerName %></h5>
+            <p class="card-text">
+              <strong>Register Date:</strong> <%= statement.registerDate %><br />
+              <strong>Product Name:</strong> <%= statement.productName %><br />
+              <strong>Product Price:</strong> ¥<%= statement.productPrice %><br />
+            </p>
+            <a href="/soldEdit/edit/<%= statement._id %>" class="btn btn-warning btn-sm">Edit</a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
