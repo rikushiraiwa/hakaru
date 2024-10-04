@@ -385,39 +385,32 @@ app.put('/incomeStatement/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // リクエストボディからデータを取得
+    // フォームから送信されたデータをそのまま取得
+    const data = req.body;
+
+    // サーバーサイドで計算
+    const grossProfit = data.revenue - data.cogs;
+    const netProfit = grossProfit - data.expenses;
+    const netRatio = data.revenue != 0 ? ((netProfit / data.revenue) * 100).toFixed(2) : 0;
+
+    // 更新データ
     const updatedData = {
-      registerDate: req.body.registerDate,
-      customerName: req.body.customerName,
-      productName: req.body.productName,
-      productPrice: req.body.productPrice,
-      orderDate: req.body.orderDate,
-      shippingDate: req.body.shippingDate,
-      payment: req.body.payment,
-      uncollectedPrice: req.body.uncollectedPrice,
-      sales: req.body.sales,
-      salesCommission: req.body.salesCommission,
-      transferFee: req.body.transferFee,
-      shippingFee: req.body.shippingFee,
-      depositAmount: req.body.depositAmount,
-      revenue: req.body.revenue,
-      cogs: req.body.cogs,
-      expenses: req.body.expenses,
-      grossProfit: req.body.grossProfit,
-      netProfit: req.body.netProfit,
-      ratio: req.body.netRatio
+      ...data,  // フォームデータを展開
+      grossProfit,  // 計算結果
+      netProfit,    // 計算結果
+      ratio: netRatio // 計算結果
     };
 
-    // MongoDB のデータを更新
+    // データベースを更新
     await IncomeStatement.findByIdAndUpdate(id, updatedData, { new: true });
 
-    // 成功後にリダイレクト
     res.redirect('/soldInfor');
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');
   }
 });
+
 
 
 

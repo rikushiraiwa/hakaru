@@ -84,25 +84,25 @@
         </div>
         <div class="card-body">
             <div class="row mb-3">
-            <div class="col">
-                <label for="revenue" class="form-label">Sales Revenue:</label>
-                <input type="number" name="revenue" id="revenue" value="<%= revenue %>" class="form-control" />
-            </div>
-            <div class="col">
-                <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
-                <input type="number" name="cogs" id="cogs" value="<%= cogs %>" class="form-control" />
-            </div>
+                <div class="col">
+                    <label for="revenue" class="form-label">Sales Revenue:</label>
+                    <input type="number" name="revenue" id="revenue" value="<%= revenue %>" class="form-control" oninput="calculateProfits()" />
+                </div>
+                <div class="col">
+                    <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
+                    <input type="number" name="cogs" id="cogs" value="<%= cogs %>" class="form-control" oninput="calculateProfits()" />
+                </div>
             </div>
             <div class="row mb-3">
-            <div class="col">
-                <label for="expenses" class="form-label">Operating Expenses:</label>
-                <input type="number" name="expenses" id="expenses" value="<%= expenses %>" class="form-control" />
-            </div>
+                <div class="col">
+                    <label for="expenses" class="form-label">Operating Expenses:</label>
+                    <input type="number" name="expenses" id="expenses" value="<%= expenses %>" class="form-control" oninput="calculateProfits()" />
+                </div>
             </div>
             <div class="results">
-            <h3 class="mt-4">Gross Profit: <span id="grossProfit"><%= grossProfit %></span></h3>
-            <h3>Net Profit: <span id="netProfit"><%= netProfit %></span></h3>
-            <h3>Ratio: <span id="netRatio"><%= netRatio %></span> %</h3>
+                <h3 class="mt-4">Gross Profit: <span id="grossProfit"><%= grossProfit %></span></h3>
+                <h3>Net Profit: <span id="netProfit"><%= netProfit %></span></h3>
+                <h3>Ratio: <span id="netRatio"><%= netRatio %></span> %</h3>
             </div>
         </div>
         </div>
@@ -116,24 +116,4 @@
     </form>
 </div>
 
-<script>
-  function calculateProfits() {
-    const revenue = parseFloat(document.getElementById('revenue').value) || 0;
-    const cogs = parseFloat(document.getElementById('cogs').value) || 0;
-    const expenses = parseFloat(document.getElementById('expenses').value) || 0;
-
-    // Gross Profit 計算
-    const grossProfit = revenue - cogs;
-
-    // Net Profit 計算
-    const netProfit = grossProfit - expenses;
-
-    // Ratio 計算
-    const netRatio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
-
-    // 計算結果を表示
-    document.getElementById('grossProfit').textContent = grossProfit.toFixed(2);
-    document.getElementById('netProfit').textContent = netProfit.toFixed(2);
-    document.getElementById('netRatio').textContent = netRatio;
-  }
-</script>
+<script src="/js/sold.js"></script>
