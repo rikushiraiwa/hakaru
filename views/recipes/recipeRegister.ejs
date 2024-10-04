@@ -15,6 +15,13 @@
             <div class="valid-feedback">Ok!</div>
         </div>
 
+        <!-- 画像アップロードフィールドの追加 -->
+        <div class="mb-3">
+            <label for="recipeImage">Upload Recipe Image</label>
+            <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*">
+        </div>
+        <!-- ここまでが画像アップロードのためのフィールド -->
+
         <form id="deleteForm" action="/recipes/delete?_method=DELETE" method="POST">
             <table id="recipeTable" class="table table-bordered table-striped table-hover table-sm">
                 <thead class="thead-light">
@@ -28,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <!-- テーブルはJavaScriptで動的に更新 -->
                 </tbody>
             </table>
         </form>
@@ -77,9 +84,12 @@
         </div>
 
         <!-- レシピ全体を保存 -->
-        <div class="text-center mt-3">
-            <button class="btn btn-primary" onclick="submitRecipe()">Save Recipe</button>
-        </div>
+        <!-- enctype="multipart/form-data" をここで追加 -->
+        <form id="recipeForm" enctype="multipart/form-data">
+            <div class="text-center mt-3">
+                <button class="btn btn-primary" onclick="submitRecipe()">Save Recipe</button>
+            </div>
+        </form>
 
         <div class="total-container text-right mt-3">
             <p class="font-weight-bold">Total: <span id="totalValue"></span></p>

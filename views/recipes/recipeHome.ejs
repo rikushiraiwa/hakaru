@@ -1,13 +1,26 @@
 <% layout('layout/boilerplate') %>
 
-
 <div class="container mt-4">
     <h1 class="text-center">Registered Recipes</h1>
+
+    <div class="text-center mt-4 mb-3">
+        <a href="/recipes/recipeRegister" class="btn btn-primary mb-4">
+          Register New Recipe
+        </a>
+    </div>    
+    
 
     <div class="row mt-3">
         <% recipes.forEach(function(recipe) { %>
             <div class="col-md-2">
                 <div class="card mb-4">
+                    <!-- 画像を表示 -->
+                    <% if (recipe.recipeImage) { %>
+                        <img src="<%= recipe.recipeImage %>" class="card-img-top" alt="<%= recipe.recipeName %>">
+                    <% } else { %>
+                        <!-- 画像がない場合のプレースホルダー -->
+                        <img src="/path/to/default-image.jpg" class="card-img-top" alt="Default Image">
+                    <% } %>
                     <div class="card-body text-center">
                         <h5 class="card-title"><%= recipe.recipeName %></h5>
                         <a href="/recipes/edit/<%= recipe._id %>" class="btn btn-primary">Edit Recipe</a>

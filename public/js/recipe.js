@@ -79,21 +79,20 @@ function addRecipe() {
 // レシピ全体をサーバーに送信
 function submitRecipe() {
     const recipeName = document.getElementById('recipeNameInput').value;
+    const recipeImage = document.getElementById('recipeImage').files[0];
 
-    // レシピ名とアイテムをまとめてサーバーに送信
+    const formData = new FormData();
+    formData.append('recipeName', recipeName);
+    formData.append('recipeImage', recipeImage);
+    formData.append('items', JSON.stringify(tempRecipeItems)); // アイテムリストを文字列に変換して送信
+
+    // レシピ名とアイテム、画像をサーバーに送信
     fetch('/recipes', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            recipeName: recipeName,
-            items: tempRecipeItems
-        }),
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {
-        // 成功時の処理
         console.log('Recipe submitted successfully:', data);
         window.location.href = '/recipeHome'; // ページ遷移やリセットなど
     })
@@ -101,4 +100,5 @@ function submitRecipe() {
         console.error('Error:', error);
     });
 }
+
 

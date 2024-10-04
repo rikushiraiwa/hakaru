@@ -1,8 +1,31 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const engine = require('ejs-mate');
 const path = require('path');
 const methodOverride = require('method-override');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+// Cloudinaryの設定
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET
+});
+
+// MulterのCloudinaryストレージ設定
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'recipeImages', // アップロードするフォルダ名
+    allowed_formats: ['jpg', 'png', 'jpeg']
+  },
+});
+
+const upload = multer({ storage });
 
 const app = express();
 
@@ -79,6 +102,7 @@ app.delete('/expenses/delete-all', async (req, res) => {
 
 const recipeSchema = new mongoose.Schema({
     recipeName: String,
+    recipeImage: String, 
     items: [
       {
         itemName: String,
@@ -153,37 +177,27 @@ app.put('/recipes/edit/:id', async (req, res) => {
 });
 
 
-
-
-
-// レシピを追加
-app.post('/recipes', async (req, res) => {
+//Add Recipe
+app.post('/recipes', upload.single('recipeImage'), async (req, res) => {
   try {
-      const { recipeName, items } = req.body;
+    const { recipeName, items } = req.body;
+    const recipeImageUrl = req.file ? req.file.path : null; // 画像のURLを取得
 
-      if (!recipeName || !items || items.length === 0) {
-          return res.status(400).json({ message: 'Recipe name and items are required' });
-      }
+    const newRecipe = {
+      recipeName,
+      recipeImage: recipeImageUrl,
+      items: JSON.parse(items)  // itemsは文字列として送信されるので、パースします
+    };
 
-      // 既存のレシピがあるか確認
-      let recipe = await Recipe.findOne({ recipeName });
-
-      if (!recipe) {
-          // 既存のレシピがなければ新規作成
-          recipe = new Recipe({ recipeName, items: [] });
-      }
-
-      // 新しいアイテムを追加
-      recipe.items = items;
-
-      // 保存
-      await recipe.save();
-      res.status(200).json({ message: 'Recipe saved successfully', recipe }); // JSONレスポンスを返す
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server Error' });
+    const recipe = await Recipe.create(newRecipe);
+    res.json(recipe);
+    res.redirect('/recipeHome');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error creating recipe');
   }
 });
+
 
 // レシピの削除,いらないかも
 app.delete('/recipes/delete', async (req, res) => {
