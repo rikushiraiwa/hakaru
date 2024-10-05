@@ -29,7 +29,15 @@
               <tr>
                 <td><input type="date" name="registerDate" class="form-control" placeholder="Register Date" required /></td>
                 <td><input type="text" name="customerName" class="form-control" placeholder="Customer Name" required /></td>
-                <td><input type="text" name="productName" class="form-control" placeholder="Product Name" required /></td>
+                <!-- Product Nameを選択式に変更 -->
+                <td>
+                  <select name="productName" class="form-select" required>
+                    <option value="">Select a Product</option>
+                    <% recipes.forEach(function(recipe) { %>
+                      <option value="<%= recipe.recipeName %>"><%= recipe.recipeName %></option>
+                    <% }) %>
+                  </select>
+                </td>
                 <td><input type="number" name="productPrice" class="form-control" placeholder="Product Price" required /></td>
                 <td><input type="date" name="orderDate" class="form-control" placeholder="Order Date" required /></td>
                 <td><input type="date" name="shippingDate" class="form-control" placeholder="Shipping Date" required /></td>

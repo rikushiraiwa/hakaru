@@ -328,8 +328,9 @@ app.post('/incomeStatement/register', async (req, res) => {
 
 
 //IncomeStatementページを表示
-app.get('/incomeStatement', (req, res) => {
-  res.render('solds/incomeStatement'); // データはクライアントから入力されるため、初期データは不要
+app.get('/incomeStatement', async (req, res) => {
+  const recipes = await Recipe.find(); // 登録されている全てのレシピを取得
+  res.render('solds/incomeStatement', { recipes });
 });
 
 
@@ -357,6 +358,9 @@ app.get('/soldEdit/edit/:id', async (req, res) => {
 
     // MongoDBからIDに基づいてIncomeStatementを取得
     const statement = await IncomeStatement.findById(id);
+
+    // 登録されている全てのレシピを取得
+    const recipes = await Recipe.find();
     
 
     if (!statement) {
@@ -384,7 +388,8 @@ app.get('/soldEdit/edit/:id', async (req, res) => {
       grossProfit: statement.grossProfit,
       netProfit: statement.netProfit,
       netRatio: statement.ratio,
-      id: statement._id
+      id: statement._id,
+      recipes
     });
     
   } catch (error) {

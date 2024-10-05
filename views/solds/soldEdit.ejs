@@ -7,40 +7,48 @@
     <form action="/incomeStatement/update/<%= id %>?_method=PUT" method="POST">
         <!-- General Information Section -->
         <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h2><i class="fas fa-info-circle"></i> General Information</h2>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                <tr>
-                    <th>Register Date</th>
-                    <th>Customer Name</th>
-                    <th>Product Name</th>
-                    <th>Product Price</th>
-                    <th>Order Date</th>
-                    <th>Shipping Date</th>
-                    <th>Payment</th>
-                    <th>Uncollected Price</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><input type="date" name="registerDate" value="<%= registerDate %>" class="form-control" required /></td>
-                    <td><input type="text" name="customerName" value="<%= customerName %>" class="form-control" required /></td>
-                    <td><input type="text" name="productName" value="<%= productName %>" class="form-control" required /></td>
-                    <td><input type="number" name="productPrice" value="<%= productPrice %>" class="form-control" required /></td>
-                    <td><input type="date" name="orderDate" value="<%= orderDate %>" class="form-control" required /></td>
-                    <td><input type="date" name="shippingDate" value="<%= shippingDate %>" class="form-control" required /></td>
-                    <td><input type="number" name="payment" value="<%= payment %>" class="form-control" required /></td>
-                    <td><input type="number" name="uncollectedPrice" value="<%= uncollectedPrice %>" class="form-control" required /></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="card-header bg-primary text-white">
+                <h2><i class="fas fa-info-circle"></i> General Information</h2>
             </div>
-        </div>
-        </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Register Date</th>
+                        <th>Customer Name</th>
+                        <th>Product Name</th>
+                        <th>Product Price</th>
+                        <th>Order Date</th>
+                        <th>Shipping Date</th>
+                        <th>Payment</th>
+                        <th>Uncollected Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><input type="date" name="registerDate" value="<%= registerDate %>" class="form-control" required /></td>
+                        <td><input type="text" name="customerName" value="<%= customerName %>" class="form-control" required /></td>
+                        <!-- Product Nameを選択式に変更 -->
+                        <td>
+                            <select name="productName" class="form-select" required>
+                                <option value="">Select a Product</option>
+                                <% recipes.forEach(function(recipe) { %>
+                                    <option value="<%= recipe.recipeName %>" <%= recipe.recipeName === productName ? 'selected' : '' %>><%= recipe.recipeName %></option>
+                                <% }) %>
+                            </select>
+                        </td>
+                        <td><input type="number" name="productPrice" value="<%= productPrice %>" class="form-control" required /></td>
+                        <td><input type="date" name="orderDate" value="<%= orderDate %>" class="form-control" required /></td>
+                        <td><input type="date" name="shippingDate" value="<%= shippingDate %>" class="form-control" required /></td>
+                        <td><input type="number" name="payment" value="<%= payment %>" class="form-control" required /></td>
+                        <td><input type="number" name="uncollectedPrice" value="<%= uncollectedPrice %>" class="form-control" required /></td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </div>
 
         <!-- Minne Sales Details Section -->
         <div class="card shadow-sm mb-4">
