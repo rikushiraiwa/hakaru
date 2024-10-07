@@ -151,30 +151,48 @@ app.get('/recipes/edit/:id', async (req, res) => {
 });
 
 // 既存レシピの更新
-app.put('/recipes/edit/:id', async (req, res) => {
+app.put('/recipes/edit/:id', upload.single('recipeImage'), async (req, res) => {
   try {
-      console.log('Request body:', req.body);  // 送信されたデータを確認
-      const { recipeName, items } = req.body;
+      // フォームデータの処理
+      const { recipeName } = req.body;
+      let items = JSON.parse(req.body.items); // JSON形式で送られたアイテムをパース
 
       // itemsが配列として送信されているか確認
       if (!Array.isArray(items)) {
           throw new Error('Items should be an array');
       }
 
+      // 画像がアップロードされている場合
+      let imageUrl;
+      if (req.file) {
+          imageUrl = `/uploads/${req.file.filename}`; // アップロードされた画像のパスを設定
+      } else {
+          // 既存のレシピから現在の画像URLを取得して保持
+          const existingRecipe = await Recipe.findById(req.params.id);
+          if (!existingRecipe) {
+              throw new Error('Recipe not found');
+          }
+          imageUrl = existingRecipe.image; // 既存の画像URLを保持
+      }
+
       // レシピを更新
-      const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, { recipeName, items }, { new: true });
+      const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, { 
+          recipeName, 
+          items,
+          image: imageUrl  // 画像をアップデート
+      }, { new: true });
 
       if (!updatedRecipe) {
           throw new Error('Recipe not found');
       }
-
-      console.log('Recipe updated successfully:', updatedRecipe);
+      
       res.redirect('/recipeHome');
   } catch (error) {
       console.error('Error updating recipe:', error.message);
       res.status(500).send('Server Error: ' + error.message);
   }
 });
+
 
 
 //Add Recipe
