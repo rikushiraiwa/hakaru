@@ -9,6 +9,7 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
+
 // Cloudinaryの設定
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -150,48 +151,35 @@ app.get('/recipes/edit/:id', async (req, res) => {
   res.render('recipes/recipeEdit', { recipe });
 });
 
+
 // 既存レシピの更新
-app.put('/recipes/edit/:id', upload.single('recipeImage'), async (req, res) => {
+app.put('/recipes/:id', upload.single('recipeImage'), async (req, res) => {
   try {
-      // フォームデータの処理
-      const { recipeName } = req.body;
-      let items = JSON.parse(req.body.items); // JSON形式で送られたアイテムをパース
+      const { recipeName, items } = req.body;
+      const recipe = await Recipe.findById(req.params.id);
 
-      // itemsが配列として送信されているか確認
-      if (!Array.isArray(items)) {
-          throw new Error('Items should be an array');
-      }
+      // レシピ名の更新
+      recipe.recipeName = recipeName;
 
-      // 画像がアップロードされている場合
-      let imageUrl;
+      // アイテムリストが送信されている場合、新しいアイテムを追加する
+      if (items) {
+        recipe.items = JSON.parse(items); // 新しいアイテムリストで上書き
+    }
+
+      // 画像がアップロードされている場合、CloudinaryのURLを更新
       if (req.file) {
-          imageUrl = `/uploads/${req.file.filename}`; // アップロードされた画像のパスを設定
-      } else {
-          // 既存のレシピから現在の画像URLを取得して保持
-          const existingRecipe = await Recipe.findById(req.params.id);
-          if (!existingRecipe) {
-              throw new Error('Recipe not found');
-          }
-          imageUrl = existingRecipe.image; // 既存の画像URLを保持
+          recipe.recipeImage = req.file.path; // Cloudinaryにアップロードされた画像のURL
       }
 
-      // レシピを更新
-      const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, { 
-          recipeName, 
-          items,
-          image: imageUrl  // 画像をアップデート
-      }, { new: true });
-
-      if (!updatedRecipe) {
-          throw new Error('Recipe not found');
-      }
-      
-      res.redirect('/recipeHome');
+      // レシピを保存
+      await recipe.save();
+      res.json({ message: 'Recipe updated successfully' });
   } catch (error) {
-      console.error('Error updating recipe:', error.message);
-      res.status(500).send('Server Error: ' + error.message);
+      console.error('Error updating recipe:', error);
+      res.status(500).json({ error: 'Failed to update recipe' });
   }
 });
+
 
 
 

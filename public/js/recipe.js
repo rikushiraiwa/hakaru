@@ -102,3 +102,44 @@ function submitRecipe() {
 }
 
 
+function submitEditedRecipe() {
+    const recipeId = document.getElementById('recipeData').getAttribute('data-recipe-id');
+    const recipeName = document.getElementById('recipeNameInput').value;
+    const recipeImage = document.getElementById('recipeImage').files[0];
+
+    // テーブル内のアイテムをすべて取得
+    const rows = document.querySelectorAll('#recipeTable tbody tr');
+    let updatedItems = [];
+    
+    rows.forEach(row => {
+        const cells = row.cells;
+        const item = {
+            itemName: cells[1].innerText,
+            content: parseFloat(cells[2].innerText) || 0,
+            unitPrice: parseFloat(cells[3].innerText) || 0,
+            amountUsage: parseFloat(cells[4].innerText) || 0,
+            amountFee: parseFloat(cells[5].innerText) || 0
+        };
+        updatedItems.push(item);
+    });
+
+    const formData = new FormData();
+    formData.append('recipeName', recipeName);
+    if (recipeImage) {
+        formData.append('recipeImage', recipeImage); // 画像ファイルを追加
+    }
+    formData.append('items', JSON.stringify(updatedItems)); // 残っているアイテムリストを送信
+
+    fetch(`/recipes/${recipeId}?_method=PUT`, {
+        method: 'POST',  // PUTをサポートしないため、POSTを使い?_method=PUTで偽装
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Recipe updated successfully:', data);
+        window.location.href = '/recipeHome'; // 更新後にレシピホームにリダイレクト
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
