@@ -58,28 +58,31 @@
                         <!-- レシピ追加用のフォーム（recipeNameはモーダル外で入力） -->
                         <form id="recipeForm">
                             <input type="hidden" name="recipeName" id="recipeNameHidden">
-
-
                             <div class="form-group">
                                 <label for="itemName">Item Name</label>
-                                <input type="text" class="form-control" name="itemName" required>
+                                <select name="itemName" class="form-select" required>
+                                  <option value="">Select an item</option>
+                                  <% stocks.forEach(stock => { %>
+                                    <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
+                                  <% }) %>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="content">Content</label>
                                 <input type="number" class="form-control" name="content">
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="unitPrice">Unit Price</label>
                                 <input type="number" class="form-control" name="unitPrice">
-                            </div>
+                            </div> -->
                             <div class="form-group">
                                 <label for="amountUsage">Amount Usage</label>
                                 <input type="number" class="form-control" name="amountUsage">
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="amountFee">Amount Fee</label>
                                 <input type="number" class="form-control" name="amountFee">
-                            </div>
+                            </div> -->
 
 
                             <div class="d-flex justify-content-center">
@@ -106,6 +109,10 @@
         </div>
     </div>
 
+    <script>
+        // サーバーサイドから受け取った stocks データをクライアントサイドで使えるように定義
+        const stocks = <%- JSON.stringify(stocks) %>
+    </script>
 
     <script src="/js/recipe.js"></script>
 </body>

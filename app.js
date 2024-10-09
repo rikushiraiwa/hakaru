@@ -61,6 +61,62 @@ const expenseSchema = new mongoose.Schema({
 
 const Expense = mongoose.model('Expense', expenseSchema);
 
+const recipeSchema = new mongoose.Schema({
+  recipeName: String,
+  recipeImage: String, 
+  items: [
+    {
+      itemName: String,
+      content: Number,
+      unitPrice: Number,
+      amountUsage: Number,
+      amountFee: Number,
+    }
+  ]
+});
+
+const Recipe = mongoose.model('Recipe', recipeSchema);
+
+
+// Stockスキーマに unitPrice と remaining を追加
+const stockSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  itemName: { type: String, required: true },
+  purchaseQuantity: { type: Number, required: true },
+  purchasePrice: { type: Number, required: true },
+  unitPrice: { type: Number },  // 単価を追加
+  remaining: { type: Number }   // 残量を追加 (必要に応じて)
+});
+
+const Stock = mongoose.model('Stock', stockSchema);
+
+
+// IncomeStatementのスキーマを作成
+const incomeStatementSchema = new mongoose.Schema({
+  registerDate: String,
+  customerName: String,
+  productName: String,
+  productPrice: Number,
+  orderDate: String,
+  shippingDate: String,
+  payment: Number,
+  uncollectedPrice: Number,
+  sales: Number,
+  salesCommission: Number,
+  transferFee: Number,
+  shippingFee: Number,
+  depositAmount: Number,
+  revenue: Number,
+  cogs: Number,
+  expenses: Number,
+  grossProfit: Number,
+  netProfit: Number,
+  ratio: Number
+});
+
+const IncomeStatement = mongoose.model('IncomeStatement', incomeStatementSchema);
+
+
 // 経費一覧ページを表示
 app.get('/expenses', async (req, res) => {
   const expenses = await Expense.find({});
@@ -101,24 +157,6 @@ app.delete('/expenses/delete-all', async (req, res) => {
 //Recipes
 
 
-const recipeSchema = new mongoose.Schema({
-    recipeName: String,
-    recipeImage: String, 
-    items: [
-      {
-        itemName: String,
-        content: Number,
-        unitPrice: Number,
-        amountUsage: Number,
-        amountFee: Number,
-      }
-    ]
-});
-
-const Recipe = mongoose.model('Recipe', recipeSchema);
-
-
-
 // ルート定義（app.js）
 app.get('/recipeHome', async (req, res) => {
   try {
@@ -135,15 +173,11 @@ app.get('/recipeHome', async (req, res) => {
 
 
 // レシピ登録ページの表示
-// app.get('/recipes/recipeRegister', async (req, res) => {
-//     const recipes = await Recipe.find({});
-//     res.render('recipes/recipeRegister', { recipeData: recipes });
-// });
-// 新しいレシピ登録用のルート (空のフォームを表示)
-app.get('/recipes/recipeRegister', (req, res) => {
-  // 空のデータを渡す
-  res.render('recipes/recipeRegister', { recipeData: [] });
+app.get('/recipes/recipeRegister', async (req, res) => {
+  const stocks = await Stock.find();
+  res.render('recipes/recipeRegister', { stocks });
 });
+
 
 // 既存のレシピ編集用のルート
 app.get('/recipes/edit/:id', async (req, res) => {
@@ -220,55 +254,56 @@ app.delete('/recipes/delete', async (req, res) => {
 //Stocks
 
 
-const stockSchema = new mongoose.Schema({
-  date: { type: Date, required: true },
-  itemName: { type: String, required: true },
-  PurchaseQuantity: { type: Number, required: true },
-  PurchasePrice: { type: Number, required: true }
-});
 
-const Stock = mongoose.model('Stock', stockSchema);
-
-
-app.get('/stocks/stockRegister', (req, res) => {
-  res.render('stocks/stockRegister');
-});
-
-
+// 在庫一覧ページの表示
 app.get('/stockHome', async (req, res) => {
   try {
-      // MongoDBから全ての在庫データを取得
-      const stocks = await Stock.find({});
-      
-      // 取得した在庫データを `stockList.ejs` テンプレートに渡す
-      res.render('stocks/stockHome', { stocks });
+    const stocks = await Stock.find({});
+    res.render('stocks/stockHome', { stocks });
   } catch (error) {
-      console.error('Error fetching stocks:', error);
-      res.status(500).send('Server Error');
+    console.error('Error fetching stocks:', error);
+    res.status(500).send('Server Error');
   }
 });
 
-
+// 在庫の追加処理
 app.post('/stocks/add', async (req, res) => {
-  const { date, itemName, PurchaseQuantity, PurchasePrice } = req.body;
+  const { date, itemName, purchaseQuantity, purchasePrice, unitPrice } = req.body;
 
   try {
-      // 日付を日本標準時（JST）に調整
-      const dateObj = new Date(date);
-      const correctedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
+    // 日付を日本標準時（JST）に調整
+    const dateObj = new Date(date);
+    const correctedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
 
-      const newStock = new Stock({
-          date: correctedDate,
-          itemName,
-          PurchaseQuantity,
-          PurchasePrice
-      });
-      await newStock.save();
-      res.redirect('/stockHome');
+    const newStock = new Stock({
+      date: correctedDate,
+      itemName,
+      purchaseQuantity,
+      purchasePrice,
+      unitPrice
+    });
+
+    await newStock.save();
+    res.redirect('/stockHome');
   } catch (error) {
-      res.status(400).send('Error: ' + error.message);
+    res.status(400).send('Error: ' + error.message);
   }
 });
+
+// 在庫の削除処理 (削除された在庫データを処理)
+app.delete('/stocks/delete', async (req, res) => {
+  const { ids } = req.body;
+
+  try {
+    // 選択されたIDを持つ在庫を削除
+    await Stock.deleteMany({ _id: { $in: ids } });
+    res.redirect('/stockHome');
+  } catch (error) {
+    console.error('Error deleting stocks:', error);
+    res.status(500).send('Server Error');
+  }
+});
+
 
 
 
@@ -278,32 +313,6 @@ app.post('/stocks/add', async (req, res) => {
 
 
 //solds
-
-// IncomeStatementのスキーマを作成
-const incomeStatementSchema = new mongoose.Schema({
-  registerDate: String,
-  customerName: String,
-  productName: String,
-  productPrice: Number,
-  orderDate: String,
-  shippingDate: String,
-  payment: Number,
-  uncollectedPrice: Number,
-  sales: Number,
-  salesCommission: Number,
-  transferFee: Number,
-  shippingFee: Number,
-  depositAmount: Number,
-  revenue: Number,
-  cogs: Number,
-  expenses: Number,
-  grossProfit: Number,
-  netProfit: Number,
-  ratio: Number
-});
-
-const IncomeStatement = mongoose.model('IncomeStatement', incomeStatementSchema);
-
 
 
 // Registerボタンが押されたときにデータを保存

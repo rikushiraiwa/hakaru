@@ -36,12 +36,26 @@ let tempRecipeItems = [];
 // レシピを追加
 function addRecipe() {
     const form = document.getElementById("recipeForm");
+
+    // すでにモーダルに含まれているフィールドから値を取得
+    const itemName = form.itemName.value;
+    const content = form.content.value || 0;
+    const amountUsage = form.amountUsage.value || 0;
+
+    // 選択されたItemNameに対応するUnitPriceをセット
+    const selectedStock = stocks.find(stock => stock.itemName === itemName);
+    const unitPrice = selectedStock ? selectedStock.unitPrice : 0;
+
+    // AmountFeeを計算
+    const amountFee = unitPrice * amountUsage;
+
+    // 新しいレシピアイテムのオブジェクトを作成
     const newItem = {
-        itemName: form.itemName.value,
-        content: form.content.value || 0,
-        unitPrice: form.unitPrice.value || 0,
-        amountUsage: form.amountUsage.value || 0,
-        amountFee: form.amountFee.value || 0
+        itemName,
+        content,
+        unitPrice: unitPrice || 0,
+        amountUsage: amountUsage || 0,
+        amountFee: amountFee || 0
     };
 
     // フロントエンドに一時的にデータを保持
@@ -66,8 +80,10 @@ function addRecipe() {
         newRow.appendChild(td);
     });
 
-    newRow.setAttribute("onclick", "toggleRowSelection(this)");  // 行をクリックして選択できるように
+    // 新しい行をテーブルに追加
     table.appendChild(newRow);
+
+    // 合計金額の再計算
     calculateTotal();
 
     // フォームのリセットとモーダルを閉じる
@@ -143,3 +159,5 @@ function submitEditedRecipe() {
         console.error('Error:', error);
     });
 }
+
+
