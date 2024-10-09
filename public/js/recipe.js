@@ -167,3 +167,28 @@ function submitEditedRecipe() {
 }
 
 
+
+function confirmDeleteRecipe() {
+    const recipeId = document.getElementById('recipeData').getAttribute('data-recipe-id');
+
+    // レシピを削除するリクエストをサーバーに送信
+    fetch(`/recipes/${recipeId}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Recipe deleted successfully:', data);
+        // 削除後にrecipeHomeにリダイレクト
+        window.location.href = '/recipeHome';
+    })
+    .catch(error => {
+        console.error('Error during recipe deletion:', error);
+        alert('Failed to delete recipe. Please try again.');
+    });
+}
+

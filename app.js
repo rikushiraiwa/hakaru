@@ -182,7 +182,8 @@ app.get('/recipes/recipeRegister', async (req, res) => {
 // 既存のレシピ編集用のルート
 app.get('/recipes/edit/:id', async (req, res) => {
   const recipe = await Recipe.findById(req.params.id);
-  res.render('recipes/recipeEdit', { recipe });
+  const stocks = await Stock.find();
+  res.render('recipes/recipeEdit', { recipe, stocks });
 });
 
 
@@ -240,12 +241,18 @@ app.post('/recipes', upload.single('recipeImage'), async (req, res) => {
 
 
 
-// レシピの削除,いらないかも
-app.delete('/recipes/delete', async (req, res) => {
-    const { ids } = req.body;
-    await Recipe.deleteMany({ _id: { $in: ids } });
-    res.redirect('/recipes/recipeRegister');
+// レシピを削除するルート
+app.delete('/recipes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Recipe.findByIdAndDelete(id);  // 該当するレシピを削除
+    res.json({ message: 'Recipe deleted successfully' });  // レスポンスとして削除成功を返す
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({ error: 'Failed to delete recipe' });
+  }
 });
+
 
 
 
