@@ -92,7 +92,6 @@ function addRecipe() {
 }
 
 
-// レシピ全体をサーバーに送信
 function submitRecipe() {
     const recipeName = document.getElementById('recipeNameInput').value;
     const recipeImage = document.getElementById('recipeImage').files[0];
@@ -107,15 +106,22 @@ function submitRecipe() {
         method: 'POST',
         body: formData,
     })
-    .then(response => response.json())
+    .then(response => {
+        // レスポンスがJSONか確認
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         console.log('Recipe submitted successfully:', data);
-        window.location.href = '/recipeHome'; // ページ遷移やリセットなど
+        window.location.href = '/recipeHome';  // 成功したらリダイレクト
     })
     .catch((error) => {
-        console.error('Error:', error);
+        console.error('Error during recipe submission:', error);
     });
 }
+
 
 
 function submitEditedRecipe() {

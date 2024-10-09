@@ -230,13 +230,14 @@ app.post('/recipes', upload.single('recipeImage'), async (req, res) => {
     };
 
     const recipe = await Recipe.create(newRecipe);
-    res.json(recipe);
-    res.redirect('/recipeHome');
+    res.json(recipe);  // レスポンスとしてJSONを返す
   } catch (err) {
-    console.error(err);
+    console.error('Error creating recipe:', err);
     res.status(500).send('Error creating recipe');
   }
 });
+
+
 
 
 // レシピの削除,いらないかも
