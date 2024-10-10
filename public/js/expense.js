@@ -69,11 +69,13 @@ document.getElementById('confirmDownload').addEventListener('click', async funct
 
 // 日付でソート (新しい日付が上に来る)
 function sortByDate() {
-    const table = document.getElementById("expenseTable").querySelector("tbody");
-    const rows = Array.from(table.querySelectorAll("tr"));
-    rows.sort((a, b) => new Date(b.cells[1].innerText) - new Date(a.cells[1].innerText));
-    rows.forEach(row => table.appendChild(row));
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSortOrder = urlParams.get('sortOrder') === 'asc' ? 'desc' : 'asc'; // 昇順と降順を切り替える
+
+    // サーバーにソートリクエストを送信
+    window.location.href = `/expenses?sortField=date&sortOrder=${currentSortOrder}`;
 }
+
 
 // 経費を追加
 function addExpense() {

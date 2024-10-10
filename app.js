@@ -119,9 +119,23 @@ const IncomeStatement = mongoose.model('IncomeStatement', incomeStatementSchema)
 
 // 経費一覧ページを表示
 app.get('/expenses', async (req, res) => {
-  const expenses = await Expense.find({});
-  res.render('expenses/expense', { expenseData: expenses });  // views/pages/expense.ejsをレンダリング
+  const { sortField, sortOrder } = req.query;
+  let sortOptions = {};
+
+  // ソートフィールドとソート順が指定されている場合、それに基づいてソート
+  if (sortField && sortOrder) {
+    sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+  }
+
+  try {
+    const expenses = await Expense.find({}).sort(sortOptions);
+    res.render('expenses/expense', { expenseData: expenses });
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+    res.status(500).send('Server Error');
+  }
 });
+
 
 
 // 経費を追加
