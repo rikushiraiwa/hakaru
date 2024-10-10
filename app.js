@@ -266,13 +266,24 @@ app.delete('/recipes/:id', async (req, res) => {
 // 在庫一覧ページの表示
 app.get('/stockHome', async (req, res) => {
   try {
-    const stocks = await Stock.find({});
+    // クエリパラメータからsortFieldとsortOrderを取得
+    const { sortField, sortOrder } = req.query;
+    let sortOptions = {};
+
+    // sortFieldとsortOrderが指定されていれば、そのフィールドでソートする
+    if (sortField && sortOrder) {
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;  // 昇順なら1、降順なら-1
+    }
+
+    // ソートオプションを使ってデータを取得
+    const stocks = await Stock.find({}).sort(sortOptions);
     res.render('stocks/stockHome', { stocks });
   } catch (error) {
     console.error('Error fetching stocks:', error);
     res.status(500).send('Server Error');
   }
 });
+
 
 // 在庫の追加処理
 app.post('/stocks/add', async (req, res) => {
