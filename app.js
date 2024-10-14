@@ -69,8 +69,8 @@ const recipeSchema = new mongoose.Schema({
       itemName: String,
       content: Number,
       unitPrice: Number,
-      amountUsage: Number,
-      amountFee: Number,
+      amountUsage: { type: Number, default: 0 }, // デフォルト値を0に設定
+      amountFee: { type: Number, default: 0 }    // デフォルト値を0に設定
     }
   ]
 });
@@ -78,15 +78,17 @@ const recipeSchema = new mongoose.Schema({
 const Recipe = mongoose.model('Recipe', recipeSchema);
 
 
-// Stockスキーマに unitPrice と remaining を追加
+// Stockスキーマに unitPrice, remaining, remainingValue を追加
 const stockSchema = new mongoose.Schema({
-  date: { type: Date, required: true },
-  itemName: { type: String, required: true },
-  purchaseQuantity: { type: Number, required: true },
-  purchasePrice: { type: Number, required: true },
-  unitPrice: { type: Number },  // 単価を追加
-  remaining: { type: Number }   // 残量を追加 (必要に応じて)
+  date: Date,
+  itemName: String,
+  purchaseQuantity: Number,
+  purchasePrice: Number,
+  unitPrice: Number, // 単価を追加
+  remaining: Number,   // 残量を追加 (初期値を0に設定)
+  remainingValue: Number, 
 });
+
 
 const Stock = mongoose.model('Stock', stockSchema);
 
@@ -291,12 +293,24 @@ app.get('/stockHome', async (req, res) => {
 
     // ソートオプションを使ってデータを取得
     const stocks = await Stock.find({}).sort(sortOptions);
-    res.render('stocks/stockHome', { stocks });
+
+    // 各在庫に対して、残量と残量高を計算せず、データベースから取得した値を使用する
+    const stockData = stocks.map(stock => {
+      return {
+        ...stock.toObject(),
+        remaining: stock.remaining,      // そのままデータベースから取得した値を使用
+        remainingValue: stock.remainingValue // そのままデータベースから取得した値を使用
+      };
+    });
+
+    // 取得した在庫データを `stockHome.ejs` テンプレートに渡す
+    res.render('stocks/stockHome', { stocks: stockData });
   } catch (error) {
     console.error('Error fetching stocks:', error);
     res.status(500).send('Server Error');
   }
 });
+
 
 
 // 在庫の追加処理
@@ -351,9 +365,47 @@ app.delete('/stocks/delete', async (req, res) => {
 // Registerボタンが押されたときにデータを保存
 app.post('/incomeStatement/register', async (req, res) => {
   try {
-    const { revenue, cogs, expenses } = req.body;
+    const { productName } = req.body;
+
+    // 選択されたレシピに基づいてStockの更新
+    const recipe = await Recipe.findOne({ recipeName: productName });
+
+    if (recipe) {
+      // レシピの各アイテムについてStockを更新
+      for (const item of recipe.items) {
+        const stock = await Stock.findOne({ itemName: item.itemName });
+        if (!stock) {
+          console.log("Stock not found for item:", item.itemName);
+          continue;  // Stockが見つからなかった場合、次のアイテムに進む
+        }
+
+        console.log("amountName:", item.itemName);
+        console.log("amountUsage:", item.amountUsage);
+        console.log("amountFee:", item.amountFee);
+
+        // 現在の残量と残量高が未定義の場合は、購入数量・購入価格で初期化
+        stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
+        stock.remainingValue = typeof stock.remainingValue === 'number' ? stock.remainingValue : stock.purchasePrice;
+
+        // 残量と残量高の計算
+        const newRemaining = stock.remaining - item.amountUsage;
+        const newRemainingValue = stock.remainingValue - item.amountFee;
+
+        console.log("newRemaining:", newRemaining, "newRemainingValue:", newRemainingValue);
+
+        // 残量や残量高がNaNにならないようチェックし、負の値にならないよう調整
+        stock.remaining = !isNaN(newRemaining) ? Math.max(newRemaining, 0) : stock.purchaseQuantity;
+        stock.remainingValue = !isNaN(newRemainingValue) ? Math.max(newRemainingValue, 0) : stock.purchasePrice;
+
+        // 更新内容を確認
+        console.log("Updated stock:", stock);
+
+        await stock.save();  // Stockの保存
+      }
+    }
 
     // Gross Profit, Net Profit, Ratioの計算
+    const { revenue, cogs, expenses } = req.body;
     const grossProfit = revenue - cogs;
     const netProfit = grossProfit - expenses;
     const ratio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
@@ -373,6 +425,8 @@ app.post('/incomeStatement/register', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+
 
 
 //IncomeStatementページを表示

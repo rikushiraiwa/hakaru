@@ -28,18 +28,18 @@
                     </thead>
                     <tbody>
                         <% stocks.forEach(stock => { %>
-                            <tr>
-                                <td><input type="checkbox" name="ids" value="<%= stock._id %>"></td>
-                                <td><%= stock.date.toISOString().slice(0, 10) %></td>
-                                <td><%= stock.itemName %></td>
-                                <td><%= stock.purchaseQuantity %></td>
-                                <td><%= stock.purchasePrice %></td>
-                                <td><%= stock.unitPrice || '-' %></td>
-                                <td><%= stock.remaining || '-' %></td>
-                                <td><%= stock.remainingValue || '-' %></td>
-                            </tr>
+                          <tr>
+                            <td><input type="checkbox" name="ids" value="<%= stock._id %>"></td>
+                            <td><%= stock.date.toISOString().slice(0, 10) %></td>
+                            <td><%= stock.itemName %></td>
+                            <td><%= stock.purchaseQuantity %></td>
+                            <td><%= stock.purchasePrice %></td>
+                            <td><%= stock.unitPrice || '-' %></td>
+                            <td><%= stock.remaining || stock.purchaseQuantity %></td>
+                            <td><%= stock.remainingValue || stock.purchasePrice %></td>
+                          </tr>
                         <% }) %>
-                    </tbody>
+                      </tbody>                      
                 </table>
             </div>
         </form>
