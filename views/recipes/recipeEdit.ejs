@@ -67,12 +67,14 @@
                         <form id="recipeForm">
                             <div class="form-group">
                                 <label for="itemName">Item Name</label>
-                                <select name="itemName" class="form-select" required>
-                                  <option value="">Select an item</option>
-                                  <% stocks.forEach(stock => { %>
-                                    <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
-                                  <% }) %>
+                                <select name="itemName" id="itemSelect" class="form-select" required onchange="toggleNewItemField()">
+                                    <option value="">Select an item</option>
+                                    <% stocks.forEach(stock => { %>
+                                        <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
+                                    <% }) %>
+                                    <option value="new">+ Add New Item</option>
                                 </select>
+                                <input type="text" id="newItemName" class="form-control mt-2" placeholder="Enter new item name" style="display:none;">
                             </div>
                             <div class="form-group">
                                 <label for="content">Content</label>
@@ -120,6 +122,12 @@
         </div>
       </div>
     </div>
+
+    <div id="loadingSpinner" class="justify-content-center align-items-center" style="display:none !important; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>     
 
     <script>
         const stocks = <%- JSON.stringify(stocks) %>

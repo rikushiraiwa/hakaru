@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ページ読み込み時に合計を計算
+      // ページ読み込み時に合計を計算
     calculateTotal();
 });
 
@@ -33,12 +33,29 @@ function calculateTotal() {
 // 一時的にレシピアイテムを保存するための配列
 let tempRecipeItems = [];
 
+
+function toggleNewItemField() {
+    const itemSelect = document.getElementById("itemSelect");
+    const newItemName = document.getElementById("newItemName");
+
+    if (itemSelect.value === "new") {
+        newItemName.style.display = "block"; // 新しいアイテム入力フィールドを表示
+    } else {
+        newItemName.style.display = "none";  // 非表示
+    }
+}
+
 // レシピを追加
 function addRecipe() {
     const form = document.getElementById("recipeForm");
+    const selectedItem = form.itemSelect.value;  // ドロップダウンで選択された値を取得
+    let itemName = selectedItem;
 
-    // すでにモーダルに含まれているフィールドから値を取得
-    const itemName = form.itemName.value;
+    // 新しいアイテムが入力された場合
+    if (selectedItem === "new") {
+        itemName = document.getElementById("newItemName").value;  // 新しいアイテムの名前を取得
+    }
+
     const content = form.content.value || 0;
     const amountUsage = form.amountUsage.value || 0;
 
@@ -88,8 +105,13 @@ function addRecipe() {
 
     // フォームのリセットとモーダルを閉じる
     form.reset();
+    document.getElementById("newItemName").style.display = "none"; // 新しいアイテム入力欄を非表示に戻す
     $('#addRecipeModal').modal('hide');
 }
+
+
+
+
 
 
 function submitRecipe() {
@@ -100,6 +122,10 @@ function submitRecipe() {
     formData.append('recipeName', recipeName);
     formData.append('recipeImage', recipeImage);
     formData.append('items', JSON.stringify(tempRecipeItems)); // アイテムリストを文字列に変換して送信
+
+    // ローディングスピナーを表示
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = 'flex'; // スピナーを表示
 
     // レシピ名とアイテム、画像をサーバーに送信
     fetch('/recipes', {
@@ -119,8 +145,13 @@ function submitRecipe() {
     })
     .catch((error) => {
         console.error('Error during recipe submission:', error);
+        // ローディングスピナーを非表示にする
+        spinner.style.display = 'none';
     });
 }
+
+
+
 
 
 
@@ -152,6 +183,10 @@ function submitEditedRecipe() {
     }
     formData.append('items', JSON.stringify(updatedItems)); // 残っているアイテムリストを送信
 
+    // ローディングスピナーを表示
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = 'flex'; // スピナーを表示
+
     fetch(`/recipes/${recipeId}?_method=PUT`, {
         method: 'POST',  // PUTをサポートしないため、POSTを使い?_method=PUTで偽装
         body: formData,
@@ -163,8 +198,11 @@ function submitEditedRecipe() {
     })
     .catch((error) => {
         console.error('Error:', error);
+        // エラーが発生した場合はスピナーを非表示にする
+        spinner.style.display = 'none';
     });
 }
+
 
 
 
