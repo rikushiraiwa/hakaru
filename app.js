@@ -379,10 +379,6 @@ app.post('/incomeStatement/register', async (req, res) => {
           continue;  // Stockが見つからなかった場合、次のアイテムに進む
         }
 
-        console.log("amountName:", item.itemName);
-        console.log("amountUsage:", item.amountUsage);
-        console.log("amountFee:", item.amountFee);
-
         // 現在の残量と残量高が未定義の場合は、購入数量・購入価格で初期化
         stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
         stock.remainingValue = typeof stock.remainingValue === 'number' ? stock.remainingValue : stock.purchasePrice;
@@ -391,31 +387,30 @@ app.post('/incomeStatement/register', async (req, res) => {
         const newRemaining = stock.remaining - item.amountUsage;
         const newRemainingValue = stock.remainingValue - item.amountFee;
 
-        console.log("newRemaining:", newRemaining, "newRemainingValue:", newRemainingValue);
-
         // 残量や残量高がNaNにならないようチェックし、負の値にならないよう調整
         stock.remaining = !isNaN(newRemaining) ? Math.max(newRemaining, 0) : stock.purchaseQuantity;
         stock.remainingValue = !isNaN(newRemainingValue) ? Math.max(newRemainingValue, 0) : stock.purchasePrice;
-
-        // 更新内容を確認
-        console.log("Updated stock:", stock);
 
         await stock.save();  // Stockの保存
       }
     }
 
+
     // Gross Profit, Net Profit, Ratioの計算
-    const { revenue, cogs, expenses } = req.body;
+    const { revenue, cogs, expenses, sales, salesCommission, transferFee, shippingFee } = req.body;
     const grossProfit = revenue - cogs;
     const netProfit = grossProfit - expenses;
     const ratio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
+    const depositAmount = sales - salesCommission - transferFee - shippingFee;
+
 
     // データベースに保存
     const newIncomeStatement = new IncomeStatement({
       ...req.body,
       grossProfit,
       netProfit,
-      ratio
+      ratio,
+      depositAmount
     });
 
     await newIncomeStatement.save();
@@ -509,6 +504,8 @@ app.put('/incomeStatement/update/:id', async (req, res) => {
     // フォームから送信されたデータをそのまま取得
     const data = req.body;
 
+    const depositAmount = sales - salesCommission - transferFee - shippingFee;
+
     // サーバーサイドで計算
     const grossProfit = data.revenue - data.cogs;
     const netProfit = grossProfit - data.expenses;
@@ -519,7 +516,8 @@ app.put('/incomeStatement/update/:id', async (req, res) => {
       ...data,  // フォームデータを展開
       grossProfit,  // 計算結果
       netProfit,    // 計算結果
-      ratio: netRatio // 計算結果
+      ratio: netRatio,
+      depositAmount 
     };
 
     // データベースを更新

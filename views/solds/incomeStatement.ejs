@@ -61,23 +61,23 @@
             <tbody>
               <tr>
                 <th>Sales</th>
-                <td><input type="number" name="sales" class="form-control" placeholder="Sales" /></td>
+                <td><input type="number" name="sales" id="sales" class="form-control" placeholder="Sales" oninput="calculateDeposit()" /></td>
               </tr>
               <tr>
                 <th>Sales Commission</th>
-                <td><input type="number" name="salesCommission" class="form-control" placeholder="Sales Commission" /></td>
+                <td><input type="number" name="salesCommission" id="salesCommission" class="form-control" placeholder="Sales Commission" oninput="calculateDeposit()" /></td>
               </tr>
               <tr>
                 <th>Transfer Fee</th>
-                <td><input type="number" name="transferFee" class="form-control" placeholder="Transfer Fee" /></td>
+                <td><input type="number" name="transferFee" id="transferFee" class="form-control" placeholder="Transfer Fee" oninput="calculateDeposit()" /></td>
               </tr>
               <tr>
                 <th>Shipping Fee</th>
-                <td><input type="number" name="shippingFee" class="form-control" placeholder="Shipping Fee" /></td>
+                <td><input type="number" name="shippingFee" id="shippingFee" class="form-control" placeholder="Shipping Fee" oninput="calculateDeposit()" /></td>
               </tr>
               <tr>
                 <th>Deposit Amount</th>
-                <td><input type="text" name="depositAmount" class="form-control" placeholder="Deposit Amount" readonly /></td>
+                <td><input type="text" name="depositAmount" id="depositAmount" class="form-control" placeholder="Deposit Amount" readonly /></td>
               </tr>
             </tbody>
           </table>
