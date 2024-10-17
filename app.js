@@ -176,16 +176,29 @@ app.delete('/expenses/delete-all', async (req, res) => {
 // ルート定義（app.js）
 app.get('/recipeHome', async (req, res) => {
   try {
-      // MongoDBから全てのレシピを取得
-      const recipes = await Recipe.find({});
-      
-      // 取得したレシピを `recipeHome.ejs` テンプレートに渡す
-      res.render('recipes/recipeHome', { recipes });
+    const page = parseInt(req.query.page) || 1; // 現在のページ（デフォルトは1）
+    const limit = 6; // 1ページあたりの表示件数
+    const skip = (page - 1) * limit; // スキップするドキュメント数
+
+    // MongoDBからページに応じたレシピデータを取得
+    const recipes = await Recipe.find({})
+      .skip(skip)
+      .limit(limit);
+
+    // 全てのレシピの数を取得
+    const totalRecipes = await Recipe.countDocuments();
+
+    // 総ページ数を計算
+    const totalPages = Math.ceil(totalRecipes / limit);
+
+    // レシピデータとページネーションの情報をテンプレートに渡す
+    res.render('recipes/recipeHome', { recipes, currentPage: page, totalPages });
   } catch (error) {
-      console.error('Error fetching recipes:', error);
-      res.status(500).send('Server Error');
+    console.error('Error fetching recipes:', error);
+    res.status(500).send('Server Error');
   }
 });
+
 
 
 // レシピ登録ページの表示
@@ -432,18 +445,32 @@ app.get('/incomeStatement', async (req, res) => {
 
 
 // soldInforページを表示
+// soldInforページを表示
 app.get('/soldInfor', async (req, res) => {
   try {
-    // MongoDBから全てのIncomeStatementデータを取得
-    const incomeStatements = await IncomeStatement.find({});
-    
+    const page = parseInt(req.query.page) || 1; // 現在のページ（デフォルトは1）
+    const limit = 6; // 1ページあたりの表示件数
+    const skip = (page - 1) * limit; // スキップするドキュメント数
+
+    // MongoDBからページに応じたIncomeStatementデータを取得
+    const incomeStatements = await IncomeStatement.find({})
+      .skip(skip)
+      .limit(limit);
+
+    // 全てのIncomeStatementの数を取得
+    const totalDocuments = await IncomeStatement.countDocuments();
+
+    // 総ページ数を計算
+    const totalPages = Math.ceil(totalDocuments / limit);
+
     // soldInforテンプレートにデータを渡す
-    res.render('solds/soldInfor', { incomeStatements });
+    res.render('solds/soldInfor', { incomeStatements, currentPage: page, totalPages });
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
   }
 });
+
 
 
 

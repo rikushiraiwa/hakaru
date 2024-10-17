@@ -1,0 +1,5 @@
+.card-img-top {
+    width: 100%; /* カードの横幅に合わせる */
+    height: 200px; /* 画像の高さを固定 */
+    object-fit: cover; /* 画像が枠内に収まるように調整 */
+}
