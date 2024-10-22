@@ -12,19 +12,24 @@
             <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">Delete Selected</button>
         </div>
 
-        <!-- Recipe Nameの入力 -->
-        <div class="mb-3">
-            <label for="recipeName">Recipe Name</label>
-            <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
-            <div class="invalid-feedback">Please enter a Recipe Name.</div>
-        </div>
-
-        <!-- 画像アップロードフィールド -->
-        <div class="mb-3">
-            <label for="recipeImage">Upload Recipe Image</label>
-            <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
-            <div class="invalid-feedback">Please upload an image for the recipe.</div>
-        </div>
+        <!-- Recipe NameとImageのバリデーション用フォーム -->
+        <form id="recipeForm" novalidate>
+            <!-- Recipe Nameの入力 -->
+            <div class="mb-3">
+                <label for="recipeName">Recipe Name</label>
+                <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please enter a Recipe Name.</div>
+            </div>
+        
+            <!-- 画像アップロードフィールド -->
+            <div class="mb-3">
+                <label for="recipeImage">Upload Recipe Image</label>
+                <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
+                <div class="valid-feedback">Image uploaded successfully!</div>
+                <div class="invalid-feedback">Please upload an image for the recipe.</div>
+            </div>
+        </form>
 
         <form id="deleteForm" action="/recipes/delete?_method=DELETE" method="POST">
             <table id="recipeTable" class="table table-bordered table-striped table-hover table-sm">
@@ -44,7 +49,7 @@
             </table>
         </form>
 
-        <!-- Add recipe Modal -->
+        <!-- Add Recipe Modal -->
         <div class="modal fade" id="addRecipeModal" tabindex="-1" role="dialog" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -54,8 +59,7 @@
                     </div>
                     <div class="modal-body">
                         <!-- レシピ追加用のフォーム -->
-                        <form id="recipeForm">
-                            <input type="hidden" name="recipeName" id="recipeNameHidden">
+                        <form id="modalRecipeForm" class="needs-validation" novalidate>
                             <div class="form-group">
                                 <label for="itemName">Item Name</label>
                                 <select name="itemName" id="itemSelect" class="form-select" required onchange="toggleNewItemField()">
@@ -65,15 +69,18 @@
                                     <% }) %>
                                     <option value="new">+ Add New Item</option>
                                 </select>
+                                <div class="invalid-feedback">Please select an item.</div>
                                 <input type="text" id="newItemName" class="form-control mt-2" placeholder="Enter new item name" style="display:none;">
                             </div>
                             <div class="form-group">
                                 <label for="content">Content</label>
-                                <input type="number" class="form-control" name="content">
+                                <input type="number" class="form-control" name="content" required>
+                                <div class="invalid-feedback">Please enter content value.</div>
                             </div>
                             <div class="form-group">
                                 <label for="amountUsage">Amount Usage</label>
-                                <input type="number" class="form-control" name="amountUsage">
+                                <input type="number" class="form-control" name="amountUsage" required>
+                                <div class="invalid-feedback">Please enter amount usage.</div>
                             </div>
 
                             <div class="d-flex justify-content-center">
@@ -86,11 +93,9 @@
         </div>
 
         <!-- レシピ全体を保存 -->
-        <form id="recipeForm" enctype="multipart/form-data">
-            <div class="text-center mt-3">
-                <button type="button" class="btn btn-primary" id="saveRecipeBtn">Save Recipe</button>
-            </div>
-        </form>        
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-primary" id="saveRecipeBtn">Save Recipe</button>
+        </div>
 
         <div class="total-container text-right mt-3">
             <p class="font-weight-bold">Total: <span id="totalValue"></span></p>
