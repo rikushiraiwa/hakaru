@@ -1,31 +1,30 @@
 <% layout('layout/boilerplate') %>
 
-
 <body>
     <div class="container mt-4">
         <h1 class="text-center">Please Add Your Recipe</h1>
 
-
         <div class="mb-3 mt-3 d-flex justify-content-center">
-            <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addRecipeModal">Add Recipe</button>
+            <!-- Add Recipeボタン -->
+            <button id="addRecipeBtn" class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+                Add Recipe
+            </button>
             <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">Delete Selected</button>
         </div>
 
-
+        <!-- Recipe Nameの入力 -->
         <div class="mb-3">
             <label for="recipeName">Recipe Name</label>
             <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
-            <div class="valid-feedback">Ok!</div>
+            <div class="invalid-feedback">Please enter a Recipe Name.</div>
         </div>
 
-
-        <!-- 画像アップロードフィールドの追加 -->
+        <!-- 画像アップロードフィールド -->
         <div class="mb-3">
             <label for="recipeImage">Upload Recipe Image</label>
-            <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*">
+            <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
+            <div class="invalid-feedback">Please upload an image for the recipe.</div>
         </div>
-        <!-- ここまでが画像アップロードのためのフィールド -->
-
 
         <form id="deleteForm" action="/recipes/delete?_method=DELETE" method="POST">
             <table id="recipeTable" class="table table-bordered table-striped table-hover table-sm">
@@ -45,7 +44,6 @@
             </table>
         </form>
 
-
         <!-- Add recipe Modal -->
         <div class="modal fade" id="addRecipeModal" tabindex="-1" role="dialog" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -55,21 +53,20 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- レシピ追加用のフォーム（recipeNameはモーダル外で入力） -->
+                        <!-- レシピ追加用のフォーム -->
                         <form id="recipeForm">
                             <input type="hidden" name="recipeName" id="recipeNameHidden">
                             <div class="form-group">
                                 <label for="itemName">Item Name</label>
                                 <select name="itemName" id="itemSelect" class="form-select" required onchange="toggleNewItemField()">
-                                  <option value="">Select an item</option>
-                                  <% stocks.forEach(stock => { %>
-                                    <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
-                                  <% }) %>
-                                  <option value="new">+ Add New Item</option>
+                                    <option value="">Select an item</option>
+                                    <% stocks.forEach(stock => { %>
+                                        <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
+                                    <% }) %>
+                                    <option value="new">+ Add New Item</option>
                                 </select>
                                 <input type="text" id="newItemName" class="form-control mt-2" placeholder="Enter new item name" style="display:none;">
-                              </div>
-                              
+                            </div>
                             <div class="form-group">
                                 <label for="content">Content</label>
                                 <input type="number" class="form-control" name="content">
@@ -78,7 +75,7 @@
                                 <label for="amountUsage">Amount Usage</label>
                                 <input type="number" class="form-control" name="amountUsage">
                             </div>
-                           
+
                             <div class="d-flex justify-content-center">
                                 <button type="button" class="btn btn-success m-4" onclick="addRecipe()">Add Recipe</button>
                             </div>
@@ -88,36 +85,32 @@
             </div>
         </div>
 
-
         <!-- レシピ全体を保存 -->
-        <!-- enctype="multipart/form-data" をここで追加 -->
         <form id="recipeForm" enctype="multipart/form-data">
             <div class="text-center mt-3">
-                <button type="button" class="btn btn-primary" onclick="submitRecipe()">Save Recipe</button>
+                <button type="button" class="btn btn-primary" id="saveRecipeBtn">Save Recipe</button>
             </div>
-        </form>
-
+        </form>        
 
         <div class="total-container text-right mt-3">
             <p class="font-weight-bold">Total: <span id="totalValue"></span></p>
         </div>
     </div>
 
-
+    <!-- ローディングスピナー -->
     <div id="loadingSpinner" class="justify-content-center align-items-center" style="display:none !important; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999;">
         <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-    </div>     
+    </div>
 
-
+    <!-- サーバーサイドから受け取った stocks データをクライアントサイドで使えるように定義 -->
     <script>
-        // サーバーサイドから受け取った stocks データをクライアントサイドで使えるように定義
         const stocks = <%- JSON.stringify(stocks) %>
     </script>
 
+    <!-- JavaScriptファイルの読み込み -->
     <script src="/js/recipe.js"></script>
+
 </body>
 </html>
-
-

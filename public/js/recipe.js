@@ -114,41 +114,72 @@ function addRecipe() {
 
 
 
-function submitRecipe() {
-    const recipeName = document.getElementById('recipeNameInput').value;
-    const recipeImage = document.getElementById('recipeImage').files[0];
+document.addEventListener('DOMContentLoaded', () => {
+    const saveRecipeBtn = document.getElementById('saveRecipeBtn');
+    const recipeNameInput = document.getElementById('recipeNameInput');
+    const recipeImageInput = document.getElementById('recipeImage');
 
-    const formData = new FormData();
-    formData.append('recipeName', recipeName);
-    formData.append('recipeImage', recipeImage);
-    formData.append('items', JSON.stringify(tempRecipeItems)); // アイテムリストを文字列に変換して送信
+    // Save Recipeボタンが押された時にバリデーションを実施
+    saveRecipeBtn.addEventListener('click', function(event) {
+        let isValid = true;
 
-    // ローディングスピナーを表示
-    const spinner = document.getElementById('loadingSpinner');
-    spinner.style.display = 'flex'; // スピナーを表示
-
-    // レシピ名とアイテム、画像をサーバーに送信
-    fetch('/recipes', {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => {
-        // レスポンスがJSONか確認
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Recipe Nameが入力されていない場合
+        if (!recipeNameInput.value) {
+            recipeNameInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            recipeNameInput.classList.remove('is-invalid');
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Recipe submitted successfully:', data);
-        window.location.href = '/recipeHome';  // 成功したらリダイレクト
-    })
-    .catch((error) => {
-        console.error('Error during recipe submission:', error);
-        // ローディングスピナーを非表示にする
-        spinner.style.display = 'none';
+
+        // Recipe Imageが選択されていない場合
+        if (!recipeImageInput.files.length) {
+            recipeImageInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            recipeImageInput.classList.remove('is-invalid');
+        }
+
+        // バリデーションがすべてOKの場合、レシピを保存
+        if (isValid) {
+            submitRecipe();  // バリデーションが通った場合のみsubmitRecipe関数を呼び出す
+        }
     });
-}
+
+    function submitRecipe() {
+        const recipeName = recipeNameInput.value;
+        const recipeImage = recipeImageInput.files[0];
+
+        const formData = new FormData();
+        formData.append('recipeName', recipeName);
+        formData.append('recipeImage', recipeImage);
+        formData.append('items', JSON.stringify(tempRecipeItems)); // アイテムリストを文字列に変換して送信
+
+        // ローディングスピナーを表示
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = 'flex'; // スピナーを表示
+
+        // レシピ名とアイテム、画像をサーバーに送信
+        fetch('/recipes', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Recipe submitted successfully:', data);
+            window.location.href = '/recipeHome';  // 成功したらリダイレクト
+        })
+        .catch((error) => {
+            console.error('Error during recipe submission:', error);
+            // ローディングスピナーを非表示にする
+            spinner.style.display = 'none';
+        });
+    }
+});
 
 
 
@@ -229,4 +260,6 @@ function confirmDeleteRecipe() {
         alert('Failed to delete recipe. Please try again.');
     });
 }
+
+
 
