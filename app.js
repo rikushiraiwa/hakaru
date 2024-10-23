@@ -5,10 +5,13 @@ const mongoose = require('mongoose');
 const engine = require('ejs-mate');
 const path = require('path');
 const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-
 
 // Cloudinaryの設定
 cloudinary.config({
@@ -40,12 +43,135 @@ app.set('views', path.join(__dirname, 'views'));  // viewsフォルダをテン�
 app.use(express.static(path.join(__dirname, 'public')));  // 静的ファイルの提供
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(methodOverride('_method'));
 
+// セッションの設定
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Passportの初期化
+app.use(passport.initialize());
+app.use(passport.session());
+
+// EJSエンジンの設定
 app.engine('ejs', engine);
 
-// 経費のスキーマとモデルを作成
+// ユーザー情報をEJSテンプレートに渡すミドルウェア
+app.use((req, res, next) => {
+  res.locals.user = req.user;  // ログインしているユーザーがいる場合にuserオブジェクトを設定
+  next();
+});
+
+// ユーザーのスキーマとモデル
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Passportのローカル戦略設定
+passport.use(new LocalStrategy(async (username, password, done) => {
+  const user = await User.findOne({ username });
+  if (!user) {
+    return done(null, false, { message: 'Incorrect username.' });
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (isMatch) {
+    return done(null, user);
+  } else {
+    return done(null, false, { message: 'Incorrect password.' });
+  }
+}));
+
+// シリアライズとデシリアライズ
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  done(null, user);
+});
+
+// ユーザー認証ルート
+app.get('/register', (req, res) => {
+  res.render('users/register');  // registerページをusersフォルダからレンダリング
+});
+
+app.post('/users/register', async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10); // パスワードをハッシュ化
+  const newUser = new User({ username, password: hashedPassword });
+  await newUser.save();
+  res.redirect('/login');  // 登録後、ログインページにリダイレクト
+});
+
+app.get('/login', (req, res) => {
+  res.render('users/login');  // loginページをusersフォルダからレンダリング
+});
+
+app.post('/users/login', passport.authenticate('local', {
+  successRedirect: '/', // ログイン成功後、recipeHomeページにリダイレクト
+  failureRedirect: '/login'  // ログイン失敗時、ログインページにリダイレクト
+}));
+
+app.get('/logout', (req, res, next) => {
+  req.logout(err => {
+    if (err) return next(err);
+    res.redirect('/login');  // ログアウト後、ログインページにリダイレクト
+  });
+});
+
+// ログイン必須のミドルウェア
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();  // 認証済みなら次のミドルウェアに進む
+  }
+  res.redirect('/login');  // 認証されていない場合、ログインページにリダイレクト
+}
+
+
+
+
+//home
+// ホームページルート
+app.get('/', isAuthenticated, async (req, res) => {
+  try {
+    // レシピ、在庫、経費、売上の総数を計算するためのデータを取得
+    const totalRecipes = await Recipe.countDocuments();   // レシピの総数
+    const totalStocks = await Stock.countDocuments();     // 在庫の総数
+    const totalExpenses = await Expense.aggregate([{ $group: { _id: null, total: { $sum: "$purchase" } } }]); // 経費の合計
+    const totalSales = await IncomeStatement.aggregate([{ $group: { _id: null, total: { $sum: "$productPrice" } } }]); // 売上の合計
+
+    // 最近のアクティビティデータ (例えば、最新のレシピや売上の登録)
+    const recentActivities = [
+      { description: "New Recipe Registered: Tofu Salad", date: "2024-10-01" },
+      { description: "Stock Updated: Soybean", date: "2024-10-05" },
+      { description: "Expense Recorded: Packaging", date: "2024-10-10" },
+      { description: "Sale Recorded: Tofu Burger", date: "2024-10-12" }
+    ];
+
+    // データを渡してhome.ejsをレンダリング
+    res.render('home/home', { 
+      totalRecipes, 
+      totalStocks, 
+      totalExpenses: totalExpenses[0] ? totalExpenses[0].total : 0, 
+      totalSales: totalSales[0] ? totalSales[0].total : 0,
+      recentActivities
+    });
+  } catch (error) {
+    console.error("Error fetching data for home page:", error);
+    res.status(500).send("Server Error");
+  }
+});
+
+
+
+// 各モデルのスキーマ（既存のコード）
 const expenseSchema = new mongoose.Schema({
   date: String,
   content: String,
@@ -69,31 +195,26 @@ const recipeSchema = new mongoose.Schema({
       itemName: String,
       content: Number,
       unitPrice: Number,
-      amountUsage: { type: Number, default: 0 }, // デフォルト値を0に設定
-      amountFee: { type: Number, default: 0 }    // デフォルト値を0に設定
+      amountUsage: { type: Number, default: 0 },
+      amountFee: { type: Number, default: 0 }
     }
   ]
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);
 
-
-// Stockスキーマに unitPrice, remaining, remainingValue を追加
 const stockSchema = new mongoose.Schema({
   date: Date,
   itemName: String,
   purchaseQuantity: Number,
   purchasePrice: Number,
-  unitPrice: Number, // 単価を追加
-  remaining: Number,   // 残量を追加 (初期値を0に設定)
-  remainingValue: Number, 
+  unitPrice: Number,
+  remaining: Number,
+  remainingValue: Number,
 });
-
 
 const Stock = mongoose.model('Stock', stockSchema);
 
-
-// IncomeStatementのスキーマを作成
 const incomeStatementSchema = new mongoose.Schema({
   registerDate: String,
   customerName: String,
@@ -118,13 +239,11 @@ const incomeStatementSchema = new mongoose.Schema({
 
 const IncomeStatement = mongoose.model('IncomeStatement', incomeStatementSchema);
 
-
-// 経費一覧ページを表示
-app.get('/expenses', async (req, res) => {
+// 経費関連のルート（ログイン必須）
+app.get('/expenses', isAuthenticated, async (req, res) => {
   const { sortField, sortOrder } = req.query;
   let sortOptions = {};
 
-  // ソートフィールドとソート順が指定されている場合、それに基づいてソート
   if (sortField && sortOrder) {
     sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
   }
@@ -138,43 +257,20 @@ app.get('/expenses', async (req, res) => {
   }
 });
 
-
-
-// 経費を追加
-app.post('/expenses', async (req, res) => {
+app.post('/expenses', isAuthenticated, async (req, res) => {
   const newExpense = new Expense(req.body);
   await newExpense.save();
   res.redirect('/expenses');
 });
 
-// 経費を削除
-app.delete('/expenses/delete', async (req, res) => {
+app.delete('/expenses/delete', isAuthenticated, async (req, res) => {
   const { ids } = req.body;
   await Expense.deleteMany({ _id: { $in: ids } });
   res.redirect('/expenses');
 });
 
-//ダウンロード時にデータを消去
-app.delete('/expenses/delete-all', async (req, res) => {
-    try {
-        await Expense.deleteMany({});  // Expenseコレクション内のすべてのデータを削除
-        res.status(200).send('All expenses deleted');
-    } catch (error) {
-        console.error('Error deleting all expenses:', error);
-        res.status(500).send('Failed to delete expenses');
-    }
-});
-
-
-
-
-
-
-//Recipes
-
-
-// ルート定義（app.js）
-app.get('/recipeHome', async (req, res) => {
+// レシピ関連のルート
+app.get('/recipeHome', isAuthenticated, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // 現在のページ（デフォルトは1）
     const limit = 6; // 1ページあたりの表示件数
@@ -191,7 +287,6 @@ app.get('/recipeHome', async (req, res) => {
     // 総ページ数を計算
     const totalPages = Math.ceil(totalRecipes / limit);
 
-    // レシピデータとページネーションの情報をテンプレートに渡す
     res.render('recipes/recipeHome', { recipes, currentPage: page, totalPages });
   } catch (error) {
     console.error('Error fetching recipes:', error);
@@ -199,124 +294,86 @@ app.get('/recipeHome', async (req, res) => {
   }
 });
 
-
-
-// レシピ登録ページの表示
-app.get('/recipes/recipeRegister', async (req, res) => {
+app.get('/recipes/recipeRegister', isAuthenticated, async (req, res) => {
   const stocks = await Stock.find();
   res.render('recipes/recipeRegister', { stocks });
 });
 
-
-// 既存のレシピ編集用のルート
-app.get('/recipes/edit/:id', async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
-  const stocks = await Stock.find();
-  res.render('recipes/recipeEdit', { recipe, stocks });
-});
-
-
-// 既存レシピの更新
-app.put('/recipes/:id', upload.single('recipeImage'), async (req, res) => {
-  try {
-      const { recipeName, items } = req.body;
-      const recipe = await Recipe.findById(req.params.id);
-
-      // レシピ名の更新
-      recipe.recipeName = recipeName;
-
-      // アイテムリストが送信されている場合、新しいアイテムを追加する
-      if (items) {
-        recipe.items = JSON.parse(items); // 新しいアイテムリストで上書き
-    }
-
-      // 画像がアップロードされている場合、CloudinaryのURLを更新
-      if (req.file) {
-          recipe.recipeImage = req.file.path; // Cloudinaryにアップロードされた画像のURL
-      }
-
-      // レシピを保存
-      await recipe.save();
-      res.json({ message: 'Recipe updated successfully' });
-  } catch (error) {
-      console.error('Error updating recipe:', error);
-      res.status(500).json({ error: 'Failed to update recipe' });
-  }
-});
-
-
-
-
-//Add Recipe
-app.post('/recipes', upload.single('recipeImage'), async (req, res) => {
+app.post('/recipes', isAuthenticated, upload.single('recipeImage'), async (req, res) => {
   try {
     const { recipeName, items } = req.body;
-    const recipeImageUrl = req.file ? req.file.path : null; // 画像のURLを取得
+    const recipeImageUrl = req.file ? req.file.path : null;
 
     const newRecipe = {
       recipeName,
       recipeImage: recipeImageUrl,
-      items: JSON.parse(items)  // itemsは文字列として送信されるので、パースします
+      items: JSON.parse(items)
     };
 
     const recipe = await Recipe.create(newRecipe);
-    res.json(recipe);  // レスポンスとしてJSONを返す
+    res.json(recipe);
   } catch (err) {
     console.error('Error creating recipe:', err);
     res.status(500).send('Error creating recipe');
   }
 });
 
+app.get('/recipes/edit/:id', isAuthenticated, async (req, res) => {
+  const recipe = await Recipe.findById(req.params.id);
+  const stocks = await Stock.find();
+  res.render('recipes/recipeEdit', { recipe, stocks });
+});
 
+app.put('/recipes/:id', isAuthenticated, upload.single('recipeImage'), async (req, res) => {
+  try {
+    const { recipeName, items } = req.body;
+    const recipe = await Recipe.findById(req.params.id);
 
+    recipe.recipeName = recipeName;
+    if (items) {
+      recipe.items = JSON.parse(items);
+    }
 
-// レシピを削除するルート
-app.delete('/recipes/:id', async (req, res) => {
+    if (req.file) {
+      recipe.recipeImage = req.file.path;
+    }
+
+    await recipe.save();
+    res.json({ message: 'Recipe updated successfully' });
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    res.status(500).json({ error: 'Failed to update recipe' });
+  }
+});
+
+app.delete('/recipes/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;
     await Recipe.findByIdAndDelete(id);  // 該当するレシピを削除
-    res.json({ message: 'Recipe deleted successfully' });  // レスポンスとして削除成功を返す
+    res.json({ message: 'Recipe deleted successfully' });
   } catch (error) {
     console.error('Error deleting recipe:', error);
     res.status(500).json({ error: 'Failed to delete recipe' });
   }
 });
 
-
-
-
-
-
-
-//Stocks
-
-
-
-// 在庫一覧ページの表示
-app.get('/stockHome', async (req, res) => {
+// 在庫関連のルート
+app.get('/stockHome', isAuthenticated, async (req, res) => {
   try {
-    // クエリパラメータからsortFieldとsortOrderを取得
     const { sortField, sortOrder } = req.query;
     let sortOptions = {};
 
-    // sortFieldとsortOrderが指定されていれば、そのフィールドでソートする
     if (sortField && sortOrder) {
-      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;  // 昇順なら1、降順なら-1
+      sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
     }
 
-    // ソートオプションを使ってデータを取得
     const stocks = await Stock.find({}).sort(sortOptions);
+    const stockData = stocks.map(stock => ({
+      ...stock.toObject(),
+      remaining: stock.remaining,
+      remainingValue: stock.remainingValue
+    }));
 
-    // 各在庫に対して、残量と残量高を計算せず、データベースから取得した値を使用する
-    const stockData = stocks.map(stock => {
-      return {
-        ...stock.toObject(),
-        remaining: stock.remaining,      // そのままデータベースから取得した値を使用
-        remainingValue: stock.remainingValue // そのままデータベースから取得した値を使用
-      };
-    });
-
-    // 取得した在庫データを `stockHome.ejs` テンプレートに渡す
     res.render('stocks/stockHome', { stocks: stockData });
   } catch (error) {
     console.error('Error fetching stocks:', error);
@@ -324,14 +381,10 @@ app.get('/stockHome', async (req, res) => {
   }
 });
 
-
-
-// 在庫の追加処理
-app.post('/stocks/add', async (req, res) => {
+app.post('/stocks/add', isAuthenticated, async (req, res) => {
   const { date, itemName, purchaseQuantity, purchasePrice, unitPrice } = req.body;
 
   try {
-    // 日付を日本標準時（JST）に調整
     const dateObj = new Date(date);
     const correctedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
 
@@ -350,12 +403,10 @@ app.post('/stocks/add', async (req, res) => {
   }
 });
 
-// 在庫の削除処理 (削除された在庫データを処理)
-app.delete('/stocks/delete', async (req, res) => {
+app.delete('/stocks/delete', isAuthenticated, async (req, res) => {
   const { ids } = req.body;
 
   try {
-    // 選択されたIDを持つ在庫を削除
     await Stock.deleteMany({ _id: { $in: ids } });
     res.redirect('/stockHome');
   } catch (error) {
@@ -364,60 +415,39 @@ app.delete('/stocks/delete', async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-//solds
-
-
-// Registerボタンが押されたときにデータを保存
-app.post('/incomeStatement/register', async (req, res) => {
+// 売上関連のルート
+app.post('/incomeStatement/register', isAuthenticated, async (req, res) => {
   try {
     const { productName } = req.body;
-
-    // 選択されたレシピに基づいてStockの更新
     const recipe = await Recipe.findOne({ recipeName: productName });
 
     if (recipe) {
-      // レシピの各アイテムについてStockを更新
       for (const item of recipe.items) {
         const stock = await Stock.findOne({ itemName: item.itemName });
         if (!stock) {
           console.log("Stock not found for item:", item.itemName);
-          continue;  // Stockが見つからなかった場合、次のアイテムに進む
+          continue;
         }
 
-        // 現在の残量と残量高が未定義の場合は、購入数量・購入価格で初期化
         stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
         stock.remainingValue = typeof stock.remainingValue === 'number' ? stock.remainingValue : stock.purchasePrice;
 
-        // 残量と残量高の計算
         const newRemaining = stock.remaining - item.amountUsage;
         const newRemainingValue = stock.remainingValue - item.amountFee;
 
-        // 残量や残量高がNaNにならないようチェックし、負の値にならないよう調整
         stock.remaining = !isNaN(newRemaining) ? Math.max(newRemaining, 0) : stock.purchaseQuantity;
         stock.remainingValue = !isNaN(newRemainingValue) ? Math.max(newRemainingValue, 0) : stock.purchasePrice;
 
-        await stock.save();  // Stockの保存
+        await stock.save();
       }
     }
 
-
-    // Gross Profit, Net Profit, Ratioの計算
     const { revenue, cogs, expenses, sales, salesCommission, transferFee, shippingFee } = req.body;
     const grossProfit = revenue - cogs;
     const netProfit = grossProfit - expenses;
     const ratio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
     const depositAmount = sales - salesCommission - transferFee - shippingFee;
 
-
-    // データベースに保存
     const newIncomeStatement = new IncomeStatement({
       ...req.body,
       grossProfit,
@@ -427,43 +457,31 @@ app.post('/incomeStatement/register', async (req, res) => {
     });
 
     await newIncomeStatement.save();
-    res.redirect('/soldInfor'); // 保存後にリダイレクト
+    res.redirect('/soldInfor');
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
   }
 });
 
-
-
-
-//IncomeStatementページを表示
-app.get('/incomeStatement', async (req, res) => {
-  const recipes = await Recipe.find(); // 登録されている全てのレシピを取得
+app.get('/incomeStatement', isAuthenticated, async (req, res) => {
+  const recipes = await Recipe.find();
   res.render('solds/incomeStatement', { recipes });
 });
 
-
-// soldInforページを表示
-// soldInforページを表示
-app.get('/soldInfor', async (req, res) => {
+app.get('/soldInfor', isAuthenticated, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // 現在のページ（デフォルトは1）
-    const limit = 6; // 1ページあたりの表示件数
-    const skip = (page - 1) * limit; // スキップするドキュメント数
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
 
-    // MongoDBからページに応じたIncomeStatementデータを取得
     const incomeStatements = await IncomeStatement.find({})
       .skip(skip)
       .limit(limit);
 
-    // 全てのIncomeStatementの数を取得
     const totalDocuments = await IncomeStatement.countDocuments();
-
-    // 総ページ数を計算
     const totalPages = Math.ceil(totalDocuments / limit);
 
-    // soldInforテンプレートにデータを渡す
     res.render('solds/soldInfor', { incomeStatements, currentPage: page, totalPages });
   } catch (error) {
     console.log(error);
@@ -471,27 +489,16 @@ app.get('/soldInfor', async (req, res) => {
   }
 });
 
-
-
-
-// IncomeStatement編集用のルート
-app.get('/soldEdit/edit/:id', async (req, res) => {
+app.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
   try {
-    // URLからIDを取得
     const { id } = req.params;
-
-    // MongoDBからIDに基づいてIncomeStatementを取得
     const statement = await IncomeStatement.findById(id);
-
-    // 登録されている全てのレシピを取得
     const recipes = await Recipe.find();
-    
 
     if (!statement) {
       return res.status(404).send('Income Statement not found');
     }
 
-    // 取得したデータをテンプレートに渡す
     res.render('solds/soldEdit', {
       registerDate: statement.registerDate,
       orderDate: statement.orderDate,
@@ -515,39 +522,31 @@ app.get('/soldEdit/edit/:id', async (req, res) => {
       id: statement._id,
       recipes
     });
-    
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
   }
 });
 
-
-// 編集用のPUTルート
-app.put('/incomeStatement/update/:id', async (req, res) => {
+app.put('/incomeStatement/update/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;
-
-    // フォームから送信されたデータをそのまま取得
     const data = req.body;
 
     const depositAmount = sales - salesCommission - transferFee - shippingFee;
 
-    // サーバーサイドで計算
     const grossProfit = data.revenue - data.cogs;
     const netProfit = grossProfit - data.expenses;
     const netRatio = data.revenue != 0 ? ((netProfit / data.revenue) * 100).toFixed(2) : 0;
 
-    // 更新データ
     const updatedData = {
-      ...data,  // フォームデータを展開
-      grossProfit,  // 計算結果
-      netProfit,    // 計算結果
+      ...data,
+      grossProfit,
+      netProfit,
       ratio: netRatio,
-      depositAmount 
+      depositAmount
     };
 
-    // データベースを更新
     await IncomeStatement.findByIdAndUpdate(id, updatedData, { new: true });
 
     res.redirect('/soldInfor');
@@ -556,14 +555,6 @@ app.put('/incomeStatement/update/:id', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
-
-
-
-
-
-
-
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');

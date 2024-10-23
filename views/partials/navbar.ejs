@@ -12,6 +12,15 @@
                 <a class="nav-link" href="/stockHome">Stock</a>
                 <a class="nav-link" href="/soldInfor">Sold Information</a>
             </div>
+            <div class="navbar-nav ms-auto">
+                <% if (user) { %>  <!-- ユーザーがログインしているかチェック -->
+                    <a class="nav-link" href="#">Welcome, <%= user.username %></a>
+                    <a class="nav-link" href="/logout">Logout</a>
+                <% } else { %>  <!-- ユーザーがログインしていない場合 -->
+                    <a class="nav-link" href="/login">Login</a>
+                    <a class="nav-link" href="/register">Register User</a>
+                <% } %>
+            </div>
         </div>
     </div>
 </nav>
