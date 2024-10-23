@@ -46,3 +46,20 @@ function addStock() {
     form.reset();
     $('#addStockModal').modal('hide');
 }
+
+
+
+
+// ブートストラップのバリデーションを適用
+document.addEventListener('DOMContentLoaded', function () {
+    const stockForm = document.getElementById('stockForm');
+
+    stockForm.addEventListener('submit', function (event) {
+        if (!stockForm.checkValidity()) {
+            event.preventDefault();  // フォームの送信を止める
+            event.stopPropagation();
+        }
+
+        stockForm.classList.add('was-validated');  // バリデーションスタイルを適用
+    }, false);
+});

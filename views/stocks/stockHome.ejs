@@ -54,38 +54,70 @@
                     </div>
                     <div class="modal-body">
                         <!-- 在庫追加用のフォーム -->
-                        <form id="stockForm" action="/stocks/add" method="POST">
-                            <div class="form-group">
+                        <form id="stockForm" class="needs-validation" action="/stocks/add" method="POST" novalidate>
+                            <div class="form-group mb-3">
                                 <label for="date">Date</label>
                                 <input type="date" class="form-control" name="date" required>
+                                <div class="invalid-feedback">
+                                    Please select a valid date.
+                                </div>
+                                <div class="valid-feedback">
+                                    OK!
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="itemName">Item Name</label>
                                 <input type="text" class="form-control" name="itemName" required>
+                                <div class="invalid-feedback">
+                                    Please enter an item name.
+                                </div>
+                                <div class="valid-feedback">
+                                    OK!
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="purchaseQuantity">Purchase Quantity</label>
                                 <input type="number" class="form-control" name="purchaseQuantity" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid purchase quantity.
+                                </div>
+                                <div class="valid-feedback">
+                                    OK!
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="purchasePrice">Purchase Price</label>
                                 <input type="number" class="form-control" name="purchasePrice" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid purchase price.
+                                </div>
+                                <div class="valid-feedback">
+                                    OK!
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="unitPrice">Unit Price</label>
-                                <input type="number" class="form-control" name="unitPrice">
+                                <input type="number" class="form-control" name="unitPrice" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid unit price.
+                                </div>
+                                <div class="valid-feedback">
+                                    OK!
+                                </div>
                             </div>
 
                             <div class="d-flex justify-content-center">
                               <button type="submit" class="btn btn-success m-4">Add Stock</button>
                             </div>
                         </form>
-                    
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- JavaScriptファイルの読み込み -->
     <script src="/js/stock.js"></script>
+
 </body>
 </html>
