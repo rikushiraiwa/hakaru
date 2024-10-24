@@ -1,0 +1,162 @@
+/* グローバルスタイル */
+body {
+    background-color: #e0e4e9; /* 淡いブルーグレーの背景色 */
+    color: #2c3e50; /* テキストを落ち着いたダークグレーに */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ヘッダー */
+header {
+    background-color: #34495e;
+    color: #ffffff;
+    text-align: center;
+    padding: 30px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* カード */
+.card {
+    background-color: #ffffff; /* カードの背景を白にしてコントラストを出す */
+    border-radius: 12px; /* 柔らかい角丸 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 立体感のある影 */
+    color: #2c3e50; /* テキストをダークグレーに */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px); /* ホバー時にカードを浮かせる */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+/* ボタン */
+.btn {
+    /* background-color: #2980b9; 落ち着いたブルーカラー */
+    border: none;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.15); /* 立体感 */
+    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+
+.btn-primary:hover {
+    background-color: #1e7fe5; /* より明るい青 */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+.btn-success:hover {
+    background-color: #20a169; /* より明るい緑 */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+.btn-danger:hover {
+    background-color: #e15363; /* より明るい赤 */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+.btn-warning:hover {
+    background-color: #f5c94a; /* より明るい黄色 */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+.btn-info:hover {
+    background-color: #42e2ff; /* より明るいシアン */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+.btn-secondary:hover {
+    background-color: #868b90; /* より明るいダークグレー */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.2); /* ホバー時に影を強調 */
+}
+
+
+
+/* ナビバー */
+.navbar {
+    background-color: #2c3e50;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 立体感 */
+}
+
+.nav-link {
+    color: #ffffff !important;
+}
+
+.nav-link:hover {
+    background-color: #3e566b; /* ホバー時に少し明るめに */
+    color: #ffffff !important;
+}
+
+/* フッター */
+footer {
+    background-color: #34495e;
+    color: #ecf0f1;
+    text-align: center;
+    padding: 20px 0;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3); /* 上向きのシャドウで立体感 */
+}
+
+/* 見出し */
+h1 {
+    font-size: 3rem; /* フォントサイズを大きく */
+    font-weight: 700; /* 太さを強調 */
+    text-align: center; /* 中央に配置 */
+    text-transform: uppercase; /* すべて大文字にして強調 */
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    
+    /* 虹色グラデーションの設定 */
+    background: linear-gradient(to right, 
+        #e74c3c,   /* 赤 */
+        #e67e22,   /* オレンジ */
+        #f1c40f,   /* 黄色 */
+        #2ecc71,   /* 緑 */
+        #3498db,   /* 青 */
+        #9b59b6    /* 紫 */
+    );
+    background-clip: text; /* テキストに背景を適用 */
+    color: transparent;  /* テキスト自体を透明にして背景色のみを表示 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* テキストシャドウで立体感 */
+}
+
+
+h2, h3 {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* テーブル */
+.table {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th, .table td {
+    color: #2c3e50; /* テーブルテキストの色を濃いグレーにして見やすく */
+}
+
+/* レスポンシブ対応 */
+.chart-container {
+    position: relative;
+    height: 60vh;
+    width: 100%;
+}
+
+/* コンテンツ全体の余白 */
+.container {
+    margin-top: 20px;
+}
+
+/* カードとボタンの間の余白を適切に調整 */
+.card .btn {
+    margin-top: 10px;
+}
+
+
+.card-img-top {
+    width: 100%; /* カードの横幅に合わせる */
+    height: 200px; /* 画像の高さを固定 */
+    object-fit: cover; /* 画像が枠内に収まるように調整 */
+}

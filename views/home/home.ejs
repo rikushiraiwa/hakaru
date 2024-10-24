@@ -1,81 +1,120 @@
 <% layout('layout/boilerplate') %>
 
-<body class="bg-light">
-  <div class="container-fluid vh-100 d-flex flex-column">
+<body class="bg-light d-flex flex-column vh-100">
+    <div class="container-fluid flex-grow-1">
     
-    <!-- Header Section -->
-    <header class="bg-dark text-white text-center py-4 mt-4">
-      <h1 class="display-4">Welcome to Hakaru</h1>
-      <p class="lead">Efficient inventory and recipe management system at your fingertips</p>
-    </header>
+        <!-- Header Section -->
+        <header class="bg-dark text-white text-center py-4 mt-4">
+        <h1 class="mt-3 display-4">Welcome to Hakaru</h1>
+        <p class="lead">Efficient inventory and recipe management system at your fingertips</p>
+        </header>
 
-    <!-- Main Content Section -->
-    <div class="container mt-5">
-      <div class="row">
-        
-        <!-- Summary Cards -->
-        <div class="col-md-12 mb-4">
-          <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-              <div class="card text-white bg-primary shadow-sm">
-                <div class="card-body text-center">
-                  <h5 class="card-title">Total Recipes</h5>
-                  <p class="card-text display-6"><%= totalRecipes %></p>
-                  <a href="/recipeHome" class="btn btn-light">View Recipes</a>
+        <!-- Main Content Section -->
+        <div class="container mt-5">
+            <div class="row">
+                
+                <!-- Summary Cards -->
+                <div class="col-md-12 mb-4">
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                    <div class="card text-white bg-primary shadow-sm">
+                        <div class="card-body text-center">
+                        <h5 class="card-title">Total Recipes</h5>
+                        <p class="card-text display-6"><%= totalRecipes %></p>
+                        <a href="/recipeHome" class="btn btn-warning">View Recipes</a>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                    <div class="card text-white bg-success shadow-sm">
+                        <div class="card-body text-center">
+                        <h5 class="card-title">Total Stocks</h5>
+                        <p class="card-text display-6"><%= totalStocks %></p>
+                        <a href="/stockHome" class="btn btn-warning">View Stocks</a>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                    <div class="card text-white bg-info shadow-sm">
+                        <div class="card-body text-center">
+                        <h5 class="card-title">Expenses</h5>
+                        <p class="card-text display-6">￥<%= totalExpenses %></p>
+                        <a href="/expenses" class="btn btn-warning">View Expenses</a>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                    <div class="card text-white bg-danger shadow-sm">
+                        <div class="card-body text-center">
+                        <h5 class="card-title">Sales</h5>
+                        <p class="card-text display-6">￥<%= totalSales %></p>
+                        <a href="/soldInfor" class="btn btn-warning">View Sales</a>
+                        </div>
+                    </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-              <div class="card text-white bg-success shadow-sm">
-                <div class="card-body text-center">
-                  <h5 class="card-title">Total Stocks</h5>
-                  <p class="card-text display-6"><%= totalStocks %></p>
-                  <a href="/stockHome" class="btn btn-light">View Stocks</a>
                 </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-              <div class="card text-white bg-info shadow-sm">
-                <div class="card-body text-center">
-                  <h5 class="card-title">Expenses</h5>
-                  <p class="card-text display-6">￥<%= totalExpenses %></p>
-                  <a href="/expenses" class="btn btn-light">View Expenses</a>
+
+                <!-- Sales vs Expenses Chart Section -->
+                <div class="col-md-12">
+                    <h3 class="mt-5 mb-5 text-center">Sales vs Expenses</h3>
+                    <div class="mb-4 card shadow-sm">
+                        <div class="card-body">
+                            <!-- グラフのキャンバスを作成 -->
+                            <div class="chart-container" style="position: relative; height: 60vh; width: 100%;">
+                            <canvas id="salesExpenseChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-              <div class="card text-white bg-warning shadow-sm">
-                <div class="card-body text-center">
-                  <h5 class="card-title">Sales</h5>
-                  <p class="card-text display-6">￥<%= totalSales %></p>
-                  <a href="/soldInfor" class="btn btn-light">View Sales</a>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-
-        <!-- Recent Activities Section -->
-        <div class="col-md-12">
-          <h3 class="mb-4">Recent Activities</h3>
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <ul class="list-group list-group-flush">
-                <% recentActivities.forEach(activity => { %>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><%= activity.description %></span>
-                    <span class="badge bg-secondary"><%= activity.date %></span>
-                  </li>
-                <% }) %>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-      </div>
     </div>
 
-  </div>
+    <!-- JavaScript Chart.js用コード -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const expensesByMonth = <%- JSON.stringify(expensesByMonth) %>;
+        const salesByMonth = <%- JSON.stringify(salesByMonth) %>;
+
+        // データを整形
+        const salesLabels = salesByMonth.map(item => item._id);  // 月ごとのラベル
+        const salesData = salesByMonth.map(item => item.totalSales);  // 売上データ
+        const expenseData = expensesByMonth.map(item => item.totalExpense);  // 経費データ
+
+        // グラフの作成
+        const ctx = document.getElementById('salesExpenseChart').getContext('2d');
+        const salesExpenseChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: salesLabels,  // 月ごとのラベル
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: salesData,  // 売上データ
+                        backgroundColor: 'rgba(255, 206, 86, 0.8)',  // 売上の色
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Expenses',
+                        data: expenseData,  // 経費データ
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',  // 経費の色
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,  // レスポンシブ対応
+                maintainAspectRatio: false,  // アスペクト比を維持しない
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

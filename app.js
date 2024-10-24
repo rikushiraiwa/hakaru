@@ -137,31 +137,34 @@ function isAuthenticated(req, res, next) {
 
 
 
-//home
+
 // ホームページルート
 app.get('/', isAuthenticated, async (req, res) => {
   try {
-    // レシピ、在庫、経費、売上の総数を計算するためのデータを取得
     const totalRecipes = await Recipe.countDocuments();   // レシピの総数
     const totalStocks = await Stock.countDocuments();     // 在庫の総数
     const totalExpenses = await Expense.aggregate([{ $group: { _id: null, total: { $sum: "$purchase" } } }]); // 経費の合計
     const totalSales = await IncomeStatement.aggregate([{ $group: { _id: null, total: { $sum: "$productPrice" } } }]); // 売上の合計
 
-    // 最近のアクティビティデータ (例えば、最新のレシピや売上の登録)
-    const recentActivities = [
-      { description: "New Recipe Registered: Tofu Salad", date: "2024-10-01" },
-      { description: "Stock Updated: Soybean", date: "2024-10-05" },
-      { description: "Expense Recorded: Packaging", date: "2024-10-10" },
-      { description: "Sale Recorded: Tofu Burger", date: "2024-10-12" }
-    ];
+    // 月ごとの経費と売上のデータを集計
+    const expensesByMonth = await Expense.aggregate([
+      { $group: { _id: { $substr: ["$date", 0, 7] }, totalExpense: { $sum: "$purchase" } } }, // 月ごとの集計
+      { $sort: { _id: 1 } } // 月ごとにソート
+    ]);
 
-    // データを渡してhome.ejsをレンダリング
-    res.render('home/home', { 
-      totalRecipes, 
-      totalStocks, 
-      totalExpenses: totalExpenses[0] ? totalExpenses[0].total : 0, 
-      totalSales: totalSales[0] ? totalSales[0].total : 0,
-      recentActivities
+    const salesByMonth = await IncomeStatement.aggregate([
+      { $group: { _id: { $substr: ["$orderDate", 0, 7] }, totalSales: { $sum: "$productPrice" } } }, // 月ごとの集計
+      { $sort: { _id: 1 } } // 月ごとにソート
+    ]);
+
+    // ページにデータを渡す
+    res.render('home/home', {
+      totalRecipes,
+      totalStocks,
+      totalExpenses: totalExpenses[0]?.total || 0,  // 経費合計
+      totalSales: totalSales[0]?.total || 0,        // 売上合計
+      expensesByMonth,
+      salesByMonth
     });
   } catch (error) {
     console.error("Error fetching data for home page:", error);
