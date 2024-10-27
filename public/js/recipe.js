@@ -43,8 +43,8 @@ function toggleNewItemField() {
 }
 
 // レシピを追加
-function addRecipe() {
-    const form = document.getElementById("modalRecipeForm"); // モーダル内のフォーム
+function addItem() {
+    const form = document.getElementById("modalItemForm"); // モーダル内のフォーム
     const itemSelect = document.getElementById("itemSelect");
     const newItemNameInput = document.getElementById("newItemName");
 
@@ -73,6 +73,8 @@ function addRecipe() {
         amountFee: amountFee || 0
     };
 
+    tempRecipeItems.push(newItem);
+
     // 新しいアイテムをテーブルに追加
     const table = document.getElementById("recipeTable").querySelector("tbody");
     const newRow = document.createElement("tr");
@@ -100,7 +102,7 @@ function addRecipe() {
     // フォームのリセットとモーダルの閉じる処理
     form.reset();
     form.classList.remove('was-validated');
-    $('#addRecipeModal').modal('hide');
+    $('#addItemModal').modal('hide');
 }
 
 
