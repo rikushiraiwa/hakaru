@@ -14,22 +14,25 @@
 
         <!-- Recipe NameとImageのバリデーション用フォーム -->
         <form id="recipeForm" novalidate>
-            <!-- Recipe Nameの入力 -->
-            <div class="mb-3">
-                <label for="recipeName">Recipe Name</label>
-                <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
-                <div class="valid-feedback">Looks good!</div>
-                <div class="invalid-feedback">Please enter a Recipe Name.</div>
-            </div>
-        
-            <!-- 画像アップロードフィールド -->
-            <div class="mb-3">
-                <label for="recipeImage">Upload Recipe Image</label>
-                <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
-                <div class="valid-feedback">Image uploaded successfully!</div>
-                <div class="invalid-feedback">Please upload an image for the recipe.</div>
+            <div class="row">
+                <!-- Recipe Nameの入力 -->
+                <div class="col-md-6 mb-3">
+                    <label for="recipeName">Recipe Name</label>
+                    <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter a Recipe Name.</div>
+                </div>
+
+                <!-- 画像アップロードフィールド -->
+                <div class="col-md-6 mb-3">
+                    <label for="recipeImage">Upload Recipe Image</label>
+                    <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
+                    <div class="valid-feedback">Image uploaded successfully!</div>
+                    <div class="invalid-feedback">Please upload an image for the recipe.</div>
+                </div>
             </div>
         </form>
+
 
         <table id="recipeTable" class="table table-bordered table-striped table-hover table-sm">
             <thead class="thead-light">

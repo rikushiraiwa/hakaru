@@ -108,71 +108,97 @@ function addItem() {
 
 
 
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    const recipeForm = document.getElementById('recipeForm');
-    const saveRecipeBtn = document.getElementById('saveRecipeBtn');
+    const editRecipeForm = document.getElementById('editRecipeForm');
+    const saveChangesBtn = document.getElementById('saveChangesBtn');
     const modalItemForm = document.getElementById('modalItemForm');
     const recipeNameInput = document.getElementById('recipeNameInput');
     const recipeImageInput = document.getElementById('recipeImage');
+    
 
-    // Save Recipeボタンが押された時にバリデーションを実施
-    saveRecipeBtn.addEventListener('click', function(event) {
+    // Save Changesボタンが押された時にバリデーションを実施
+    saveChangesBtn.addEventListener('click', function(event) {
+        console.log('Save Changes button clicked'); // ボタンクリックの確認
         event.preventDefault();
 
-        // フォームのバリデーションをチェック
-        if (recipeForm.checkValidity()) {
-            recipeForm.classList.add('was-validated');
-            submitRecipe();  // バリデーションが通った場合のみsubmitRecipe関数を呼び出す
+        // バリデーションの確認
+        if (editRecipeForm.checkValidity()) {
+            editRecipeForm.classList.add('was-validated');
+            submitEditedRecipe();  // バリデーションが成功した場合、編集を保存する処理を実行
         } else {
-            recipeForm.classList.add('was-validated');
+            editRecipeForm.classList.add('was-validated');
         }
     });
 
     // モーダル内のAdd Recipeボタン押下時のバリデーション
-    modalItemForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        if (!modalItemForm.checkValidity()) {
-            modalItemForm.classList.add('was-validated');
-        } else {
-            addRecipe();
-        }
-    });
+    if (modalItemForm) {
+        modalItemForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!modalItemForm.checkValidity()) {
+                modalItemForm.classList.add('was-validated');
+            } else {
+                addRecipe();  // バリデーションが成功した場合のみアイテムを追加
+            }
+        });
+    }
 
-    // レシピデータの送信処理
-    function submitRecipe() {
+    // レシピデータの保存処理
+    function submitEditedRecipe() {
+        console.log('submitEditedRecipe function called'); // 関数が呼ばれているか確認
+        const recipeId = document.getElementById('recipeData').getAttribute('data-recipe-id');
         const recipeName = recipeNameInput.value;
         const recipeImage = recipeImageInput.files[0];
-
+    
         const formData = new FormData();
         formData.append('recipeName', recipeName);
-        formData.append('recipeImage', recipeImage);
-        formData.append('items', JSON.stringify(tempRecipeItems)); // アイテムリストを文字列に変換して送信
-
-        // ローディングスピナーを表示
+        if (recipeImage) {
+            formData.append('recipeImage', recipeImage);  // 画像ファイルが選択されている場合に追加
+        }
+    
         const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'flex'; // スピナーを表示
+        spinner.style.display = 'flex';  // スピナーを表示
 
-        // レシピ名とアイテム、画像をサーバーに送信
-        fetch('/recipes', {
+        fetch(`/recipes/${recipeId}?_method=PUT`, {
             method: 'POST',
             body: formData,
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Recipe submitted successfully:', data);
-            window.location.href = '/recipeHome';  // 成功したらリダイレクト
+            console.log(data.message);
         })
         .catch((error) => {
-            console.error('Error during recipe submission:', error);
-            spinner.style.display = 'none';  // ローディングスピナーを非表示にする
+            console.error('Error:', error);
+            spinner.style.display = 'none';  // エラーが発生した場合はスピナーを非表示にする
         });
     }
+    
 });
+
+
+
+function confirmDeleteRecipe() {
+    const recipeId = document.getElementById('recipeData').getAttribute('data-recipe-id');
+
+    // レシピを削除するリクエストをサーバーに送信
+    fetch(`/recipes/${recipeId}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Recipe deleted successfully:', data);
+        // 削除後にrecipeHomeにリダイレクト
+        window.location.href = '/recipeHome';
+    })
+    .catch(error => {
+        console.error('Error during recipe deletion:', error);
+        alert('Failed to delete recipe. Please try again.');
+    });
+}
+
+
+
