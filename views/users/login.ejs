@@ -6,6 +6,13 @@
       <div class="card-body">
         <h2 class="card-title text-center mb-4">Login</h2>
 
+        <!-- Error Message -->
+        <% if (error && error.length > 0) { %>
+          <div class="alert alert-danger" role="alert">
+            <%= error %>
+          </div>
+        <% } %>
+
         <form action="/users/login" method="POST">
           <!-- Username -->
           <div class="mb-3">

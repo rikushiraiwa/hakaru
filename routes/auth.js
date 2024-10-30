@@ -18,12 +18,20 @@ router.post('/users/register', async (req, res) => {
 });
 
 router.get('/login', (req, res) => {
+  // req.flash('error', 'This is a test error message');
   res.render('users/login');
 });
 
+
+
+// ログイン処理
 router.post('/users/login', passport.authenticate('local', {
-  successRedirect: '/',
+  failureFlash: 'Invalid username or password',
   failureRedirect: '/login'
-}));
+}), (req, res) => {
+  res.redirect('/');
+});
+
+
 
 module.exports = router;
