@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             console.log('Recipe submitted successfully:', data);
-            window.location.href = '/recipeHome';  // 成功したらリダイレクト
+            window.location.href = '/recipes/recipeHome';  // 成功したらリダイレクト
         })
         .catch((error) => {
             console.error('Error during recipe submission:', error);

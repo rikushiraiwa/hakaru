@@ -13,28 +13,28 @@
             <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">Delete Selected</button>
         </div>
 
+
+
         <!-- Recipe NameとImageのバリデーション用フォーム -->
-        <form id="recipeForm" novalidate>
+        <form id="editRecipeForm" novalidate>
             <div class="row">
                 <!-- Recipe Nameの入力 -->
                 <div class="col-md-6 mb-3">
                     <label for="recipeName">Recipe Name</label>
-                    <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
-                    <div class="valid-feedback">Looks good!</div>
+                    <input type="text" class="form-control" id="recipeNameInput" name="recipeName" value="<%= recipe.recipeName %>" required>
                     <div class="invalid-feedback">Please enter a Recipe Name.</div>
+                    <div class="valid-feedback">Looks good!</div>
                 </div>
 
                 <!-- 画像アップロードフィールド -->
                 <div class="col-md-6 mb-3">
                     <label for="recipeImage">Upload Recipe Image</label>
-                    <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
+                    <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*">
+                    <div class="invalid-feedback">Please upload an image.</div>
                     <div class="valid-feedback">Image uploaded successfully!</div>
-                    <div class="invalid-feedback">Please upload an image for the recipe.</div>
                 </div>
             </div>
         </form>
-
-
         
 
         <!-- Recipe Items Table -->

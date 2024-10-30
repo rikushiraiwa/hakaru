@@ -4,7 +4,7 @@
     <h1 class="text-center mb-5">Income Statement</h1>
 
     <!-- フォームの追加 -->
-    <form action="/incomeStatement/update/<%= id %>?_method=PUT" method="POST">
+    <form action="/incomeStatements/update/<%= id %>?_method=PUT" method="POST">
         <!-- General Information Section -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
@@ -110,7 +110,7 @@
             <div class="results">
                 <h3 class="mt-4">Gross Profit: <span id="grossProfit"><%= grossProfit %></span></h3>
                 <h3>Net Profit: <span id="netProfit"><%= netProfit %></span></h3>
-                <h3>Ratio: <span id="netRatio"><%= netRatio %></span> %</h3>
+                <h3>Ratio: <span id="netRatio"><%= ratio %></span> %</h3>
             </div>
         </div>
         </div>

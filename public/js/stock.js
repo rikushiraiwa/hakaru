@@ -11,7 +11,7 @@ function sortByDate() {
     const currentSortOrder = urlParams.get('sortOrder') === 'asc' ? 'desc' : 'asc'; // 昇順と降順を切り替える
 
     // サーバーにソートリクエストを送信
-    window.location.href = `/stockHome?sortField=date&sortOrder=${currentSortOrder}`;
+    window.location.href = `/stocks/stockHome?sortField=date&sortOrder=${currentSortOrder}`;
 }
 
 

@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // レシピデータの保存処理
     function submitEditedRecipe() {
-        console.log('submitEditedRecipe function called'); // 関数が呼ばれているか確認
         const recipeId = document.getElementById('recipeData').getAttribute('data-recipe-id');
         const recipeName = recipeNameInput.value;
         const recipeImage = recipeImageInput.files[0];
@@ -152,8 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('recipeName', recipeName);
         if (recipeImage) {
-            formData.append('recipeImage', recipeImage);  // 画像ファイルが選択されている場合に追加
+            formData.append('recipeImage', recipeImage);
         }
+        formData.append('items', JSON.stringify(tempRecipeItems));
     
         const spinner = document.getElementById('loadingSpinner');
         spinner.style.display = 'flex';  // スピナーを表示
@@ -165,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
+            window.location.href = '/recipes/recipeHome';  // 成功したらリダイレクト
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -192,7 +193,7 @@ function confirmDeleteRecipe() {
     .then(data => {
         console.log('Recipe deleted successfully:', data);
         // 削除後にrecipeHomeにリダイレクト
-        window.location.href = '/recipeHome';
+        window.location.href = '/recipes/recipeHome';
     })
     .catch(error => {
         console.error('Error during recipe deletion:', error);
