@@ -13,6 +13,12 @@
           </div>
         <% } %>
 
+        <% if (success && success.length > 0) { %>
+          <div class="alert alert-success" role="alert">
+            <%= success %>
+          </div>
+        <% } %>
+
         <form action="/users/login" method="POST">
           <!-- Username -->
           <div class="mb-3">

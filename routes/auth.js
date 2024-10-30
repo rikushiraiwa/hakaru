@@ -32,6 +32,16 @@ router.post('/users/login', passport.authenticate('local', {
   res.redirect('/');
 });
 
+// ログアウト処理
+router.get('/logout', (req, res, next) => {
+  req.logout((err) => {
+    if (err) { return next(err); }
+    req.flash('success', 'You have successfully logged out!');
+    res.redirect('/login');
+  });
+});
+
+
 
 
 module.exports = router;
