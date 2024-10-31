@@ -1,7 +1,6 @@
 const express = require('express');
 const passport = require('passport');
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
@@ -9,16 +8,25 @@ router.get('/register', (req, res) => {
   res.render('users/register');
 });
 
-router.post('/users/register', async (req, res) => {
+// ユーザー登録処理
+router.post('/users/register', async (req, res, next) => {
   const { username, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = new User({ username, password: hashedPassword });
-  await newUser.save();
-  res.redirect('/login');
+  try {
+    const newUser = await User.register(new User({ username }), password);
+    // 登録後にログイン状態にする
+    req.logIn(newUser, (err) => {
+      if (err) return next(err);
+      req.flash('success', 'Welcome! You are now registered and logged in.');
+      res.redirect('/'); // ホーム画面へリダイレクト
+    });
+  } catch (e) {
+    req.flash('error', e.message);
+    res.redirect('/register');
+  }
 });
 
+
 router.get('/login', (req, res) => {
-  // req.flash('error', 'This is a test error message');
   res.render('users/login');
 });
 
