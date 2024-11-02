@@ -1,3 +1,4 @@
+// routes/incomeStatements.js
 const express = require('express');
 const router = express.Router();
 const IncomeStatement = require('../models/IncomeStatement');
@@ -7,20 +8,35 @@ const { isAuthenticated } = require('../middleware/auth');
 
 
 
+// Income Statement ページの表示
 router.get('/incomeStatement', isAuthenticated, async (req, res) => {
-  const recipes = await Recipe.find();
-  res.render('incomeStatements/incomeStatement', { recipes });
+  try {
+    // ログイン中のユーザーの IncomeStatement データを取得
+    const userIncomeStatements = await IncomeStatement.find({ user: req.user._id });
+
+    // 全てのレシピを取得（Product Name 用のドロップダウン）
+    const recipes = await Recipe.find({ user: req.user._id });
+
+    // ページにデータを渡す
+    res.render('incomeStatements/incomeStatement', {
+      incomeStatements: userIncomeStatements,
+      recipes,
+    });
+  } catch (error) {
+    console.error('Error fetching income statements:', error);
+    res.status(500).send('Server Error');
+  }
 });
 
-// Income Statementの新規登録
+// Income Statementの新規登録（ログイン中のユーザーに関連付け）
 router.post('/register', isAuthenticated, async (req, res) => {
   try {
     const { productName } = req.body;
-    const recipe = await Recipe.findOne({ recipeName: productName });
+    const recipe = await Recipe.findOne({ recipeName: productName, user: req.user._id });
 
     if (recipe) {
       for (const item of recipe.items) {
-        const stock = await Stock.findOne({ itemName: item.itemName });
+        const stock = await Stock.findOne({ itemName: item.itemName, user: req.user._id });
         if (!stock) continue;
 
         stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
@@ -47,7 +63,8 @@ router.post('/register', isAuthenticated, async (req, res) => {
       grossProfit,
       netProfit,
       ratio,
-      depositAmount
+      depositAmount,
+      user: req.user._id  // ログイン中のユーザーのIDを関連付け
     });
 
     await newIncomeStatement.save();
@@ -58,15 +75,15 @@ router.post('/register', isAuthenticated, async (req, res) => {
   }
 });
 
-// Income Statement一覧ページ
+// Income Statement一覧ページ（ログイン中のユーザーのデータのみ表示）
 router.get('/soldInfor', isAuthenticated, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
 
-    const incomeStatements = await IncomeStatement.find({}).skip(skip).limit(limit);
-    const totalDocuments = await IncomeStatement.countDocuments();
+    const incomeStatements = await IncomeStatement.find({ user: req.user._id }).skip(skip).limit(limit);
+    const totalDocuments = await IncomeStatement.countDocuments({ user: req.user._id });
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.render('incomeStatements/soldInfor', { incomeStatements, currentPage: page, totalPages });
@@ -76,12 +93,12 @@ router.get('/soldInfor', isAuthenticated, async (req, res) => {
   }
 });
 
-// Income Statement編集ページ
+// Income Statement編集ページ（ログイン中のユーザーのデータのみ取得）
 router.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;
-    const statement = await IncomeStatement.findById(id);
-    const recipes = await Recipe.find();
+    const statement = await IncomeStatement.findOne({ _id: id, user: req.user._id });
+    const recipes = await Recipe.find({ user: req.user._id });
 
     if (!statement) {
       return res.status(404).send('Income Statement not found');
@@ -98,33 +115,36 @@ router.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-// Income Statementの更新
+// Income Statementの更新（ログイン中のユーザーのデータのみ更新）
 router.put('/update/:id', isAuthenticated, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const data = req.body;
-  
-      // 計算
-      const depositAmount = data.sales - data.salesCommission - data.transferFee - data.shippingFee;
-      const grossProfit = data.revenue - data.cogs;
-      const netProfit = grossProfit - data.expenses;
-      const netRatio = data.revenue !== 0 ? ((netProfit / data.revenue) * 100).toFixed(2) : 0;
-  
-      // 更新データ
-      const updatedData = {
-        ...data,
-        grossProfit,
-        netProfit,
-        ratio: netRatio,
-        depositAmount
-      };
-  
-      await IncomeStatement.findByIdAndUpdate(id, updatedData, { new: true });
-      res.redirect('/incomeStatements/soldInfor');
-    } catch (error) {
-      console.error('Error updating income statement:', error);
-      res.status(500).send('Server Error');
-    }
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    const depositAmount = data.sales - data.salesCommission - data.transferFee - data.shippingFee;
+    const grossProfit = data.revenue - data.cogs;
+    const netProfit = grossProfit - data.expenses;
+    const netRatio = data.revenue !== 0 ? ((netProfit / data.revenue) * 100).toFixed(2) : 0;
+
+    const updatedData = {
+      ...data,
+      grossProfit,
+      netProfit,
+      ratio: netRatio,
+      depositAmount
+    };
+
+    await IncomeStatement.findOneAndUpdate(
+      { _id: id, user: req.user._id },
+      updatedData,
+      { new: true }
+    );
+
+    res.redirect('/incomeStatements/soldInfor');
+  } catch (error) {
+    console.error('Error updating income statement:', error);
+    res.status(500).send('Server Error');
+  }
 });
-  
+
 module.exports = router;

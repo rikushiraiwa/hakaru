@@ -1,3 +1,4 @@
+// models/IncomeStatement.js
 const mongoose = require('mongoose');
 
 const incomeStatementSchema = new mongoose.Schema({
@@ -19,7 +20,12 @@ const incomeStatementSchema = new mongoose.Schema({
   expenses: Number,
   grossProfit: Number,
   netProfit: Number,
-  ratio: Number
+  ratio: Number,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }  // ユーザーIDを参照
 });
 
 module.exports = mongoose.model('IncomeStatement', incomeStatementSchema);

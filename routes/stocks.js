@@ -1,9 +1,10 @@
+// routes/stocks.js
 const express = require('express');
 const router = express.Router();
 const Stock = require('../models/Stock');
 const { isAuthenticated } = require('../middleware/auth');
 
-// 在庫一覧ページ
+// 在庫一覧ページ（ログイン中のユーザーの在庫のみを表示）
 router.get('/stockHome', isAuthenticated, async (req, res) => {
   try {
     const { sortField, sortOrder } = req.query;
@@ -13,7 +14,8 @@ router.get('/stockHome', isAuthenticated, async (req, res) => {
       sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
     }
 
-    const stocks = await Stock.find({}).sort(sortOptions);
+    // ログイン中のユーザーの Stock のみ取得
+    const stocks = await Stock.find({ user: req.user._id }).sort(sortOptions);
     const stockData = stocks.map(stock => ({
       ...stock.toObject(),
       remaining: stock.remaining,
@@ -27,7 +29,7 @@ router.get('/stockHome', isAuthenticated, async (req, res) => {
   }
 });
 
-// 在庫の新規追加
+// 在庫の新規追加（ログイン中のユーザーに関連付け）
 router.post('/add', isAuthenticated, async (req, res) => {
   const { date, itemName, purchaseQuantity, purchasePrice, unitPrice } = req.body;
 
@@ -40,7 +42,8 @@ router.post('/add', isAuthenticated, async (req, res) => {
       itemName,
       purchaseQuantity,
       purchasePrice,
-      unitPrice
+      unitPrice,
+      user: req.user._id  // ログイン中のユーザーのIDを関連付け
     });
 
     await newStock.save();
@@ -51,12 +54,13 @@ router.post('/add', isAuthenticated, async (req, res) => {
   }
 });
 
-// 在庫の削除
+// 在庫の削除（ログイン中のユーザーに関連付け）
 router.delete('/delete', isAuthenticated, async (req, res) => {
   const { ids } = req.body;
 
   try {
-    await Stock.deleteMany({ _id: { $in: ids } });
+    // ログイン中のユーザーのStockのみ削除
+    await Stock.deleteMany({ _id: { $in: ids }, user: req.user._id });
     res.redirect('/stocks/stockHome');
   } catch (error) {
     console.error('Error deleting stocks:', error);

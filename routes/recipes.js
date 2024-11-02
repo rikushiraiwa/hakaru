@@ -24,15 +24,16 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// レシピ一覧ページ
+// レシピ一覧ページ（ユーザーごとにフィルタリング）
 router.get('/recipeHome', isAuthenticated, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
 
-    const recipes = await Recipe.find({}).skip(skip).limit(limit);
-    const totalRecipes = await Recipe.countDocuments();
+    // 現在のユーザーが作成したレシピのみを取得
+    const recipes = await Recipe.find({ user: req.user._id }).skip(skip).limit(limit);
+    const totalRecipes = await Recipe.countDocuments({ user: req.user._id }); // ユーザーのレシピのみカウント
     const totalPages = Math.ceil(totalRecipes / limit);
 
     res.render('recipes/recipeHome', { recipes, currentPage: page, totalPages });
@@ -48,45 +49,53 @@ router.get('/recipeRegister', isAuthenticated, async (req, res) => {
   res.render('recipes/recipeRegister', { stocks });
 });
 
-// レシピの新規登録
+// レシピの新規登録（ログイン中のユーザーに関連付け）
 router.post('/', isAuthenticated, upload.single('recipeImage'), async (req, res) => {
   try {
     const { recipeName, items } = req.body;
     const recipeImageUrl = req.file ? req.file.path : null;
 
-    const newRecipe = {
+    const newRecipe = new Recipe({
       recipeName,
       recipeImage: recipeImageUrl,
-      items: JSON.parse(items)
-    };
+      items: JSON.parse(items),
+      user: req.user._id  // ログイン中のユーザーのIDを設定
+    });
 
-    const recipe = await Recipe.create(newRecipe);
-    res.json(recipe);
+    await newRecipe.save();
+    res.json(newRecipe);
   } catch (err) {
     console.error('Error creating recipe:', err);
     res.status(500).send('Error creating recipe');
   }
 });
 
-// レシピ編集ページ
+// レシピ編集ページ（ユーザーが作成したレシピのみ表示）
 router.get('/edit/:id', isAuthenticated, async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
+  const recipe = await Recipe.findOne({ _id: req.params.id, user: req.user._id }); // ユーザーのレシピを取得
   const stocks = await Stock.find();
+
+  if (!recipe) {
+    return res.status(404).send('Recipe not found or you do not have permission to view this recipe');
+  }
+
   res.render('recipes/recipeEdit', { recipe, stocks });
 });
 
-// レシピの更新
+// レシピの更新（ユーザーのレシピのみ更新可能）
 router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, res) => {
   try {
     const { recipeName, items } = req.body;
-    const recipe = await Recipe.findById(req.params.id);
+    const recipe = await Recipe.findOne({ _id: req.params.id, user: req.user._id }); // ユーザーのレシピを取得
+
+    if (!recipe) {
+      return res.status(404).send('Recipe not found or you do not have permission to update this recipe');
+    }
 
     recipe.recipeName = recipeName;
     if (items) {
-        const newItems = JSON.parse(items);  // 新しいアイテムをパース
-        recipe.items.push(...newItems);      // 既存のitemsに新しいitemsを追加
+      recipe.items = JSON.parse(items);
     }
-
     if (req.file) {
       recipe.recipeImage = req.file.path;
     }
@@ -99,11 +108,15 @@ router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, re
   }
 });
 
-// レシピの削除
+// レシピの削除（ユーザーのレシピのみ削除可能）
 router.delete('/:id', isAuthenticated, async (req, res) => {
   try {
-    const { id } = req.params;
-    await Recipe.findByIdAndDelete(id);
+    const recipe = await Recipe.findOneAndDelete({ _id: req.params.id, user: req.user._id }); // ユーザーのレシピを削除
+
+    if (!recipe) {
+      return res.status(404).send('Recipe not found or you do not have permission to delete this recipe');
+    }
+
     res.json({ message: 'Recipe deleted successfully' });
   } catch (error) {
     console.error('Error deleting recipe:', error);
