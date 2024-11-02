@@ -3,25 +3,6 @@ function deleteSelectedRows() {
 document.getElementById('deleteForm').submit();
 }
 
-// 合計の計算
-// function calculateTotal() {
-//     const rows = document.querySelectorAll('#expenseTable tbody tr');
-//     let total = 0;
-//     rows.forEach(row => {
-//         const content = parseFloat(row.cells[3].innerText.trim()) || 0;  // Content列を加算
-//         const purchase = parseFloat(row.cells[4].innerText.trim()) || 0;
-//         const consumable = parseFloat(row.cells[5].innerText.trim()) || 0;
-//         const otherExpense = parseFloat(row.cells[6].innerText.trim()) || 0;
-//         const shippingCost = parseFloat(row.cells[7].innerText.trim()) || 0;  // ShippingCostは加算
-//         const discount = parseFloat(row.cells[8].innerText.trim()) || 0;      // Purchase Discountは引く
-//         const cash = parseFloat(row.cells[9].innerText.trim()) || 0;
-//         const credit = parseFloat(row.cells[10].innerText.trim()) || 0;        // Creditも加算
-
-//         total += content + purchase + consumable + otherExpense + shippingCost - discount + cash + credit;
-//     });
-// // 合計を表示する要素に値を設定
-//     document.getElementById('totalValue').innerText = total.toFixed(2);
-// }
 
 
 //ダウンロード
@@ -110,6 +91,3 @@ function addExpense() {
     form.reset();
     $('#addExpenseModal').modal('hide');
 }
-
-// ページ読み込み時に合計を計算
-// window.onload = calculateTotal;

@@ -1,4 +1,3 @@
-// routes/home.js
 const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
@@ -15,14 +14,43 @@ router.get('/', isAuthenticated, async (req, res) => {
     // ユーザーごとに関連付けられたデータを取得
     const totalRecipes = await Recipe.countDocuments({ user: userId });
     const totalStocks = await Stock.countDocuments({ user: userId });
-    const totalExpenses = await Expense.aggregate([
+    
+    // 全ての経費項目を合計するための集計クエリ
+    const totalExpensesResult = await Expense.aggregate([
       { $match: { user: userId } },
-      { $group: { _id: null, total: { $sum: "$purchase" } } }
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: {
+              $add: [
+                { $ifNull: ["$supplier", 0] },
+                { $ifNull: ["$purchase", 0] },
+                { $ifNull: ["$consumable", 0] },
+                { $ifNull: ["$otherExpense", 0] },
+                { $ifNull: ["$shippingCost", 0] },
+                { $ifNull: ["$cash", 0] },
+                { $ifNull: ["$credit", 0] }
+              ]
+            }
+          },
+          discount: { $sum: { $ifNull: ["$purchaseDiscount", 0] } }
+        }
+      },
+      {
+        $project: {
+          totalExpense: { $subtract: ["$total", "$discount"] }
+        }
+      }
     ]);
-    const totalSales = await IncomeStatement.aggregate([
+    
+    const totalExpenses = totalExpensesResult.length > 0 ? totalExpensesResult[0].totalExpense : 0;
+    
+    const totalSalesResult = await IncomeStatement.aggregate([
       { $match: { user: userId } },
       { $group: { _id: null, total: { $sum: "$netProfit" } } }
     ]);
+    const totalSales = totalSalesResult.length > 0 ? totalSalesResult[0].total : 0;
 
     // 月ごとの経費と売上のデータを集計
     const expensesByMonth = await Expense.aggregate([
@@ -41,8 +69,8 @@ router.get('/', isAuthenticated, async (req, res) => {
     res.render('home/home', {
       totalRecipes,
       totalStocks,
-      totalExpenses: totalExpenses[0]?.total || 0,
-      totalSales: totalSales[0]?.total || 0,
+      totalExpenses,
+      totalSales,
       expensesByMonth,
       salesByMonth
     });

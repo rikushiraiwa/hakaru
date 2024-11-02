@@ -15,7 +15,40 @@ router.get('/', isAuthenticated, async (req, res) => {
   try {
     // ログイン中のユーザーに関連する経費データを取得
     const expenses = await Expense.find({ user: req.user._id }).sort(sortOptions);
-    res.render('expenses/expense', { expenseData: expenses });
+
+    // `TotalExpense` を計算
+    const totalExpenseResult = await Expense.aggregate([
+      { $match: { user: req.user._id } },
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: {
+              $add: [
+                { $ifNull: ["$supplier", 0] },
+                { $ifNull: ["$purchase", 0] },
+                { $ifNull: ["$consumable", 0] },
+                { $ifNull: ["$otherExpense", 0] },
+                { $ifNull: ["$shippingCost", 0] },
+                { $ifNull: ["$cash", 0] },
+                { $ifNull: ["$credit", 0] }
+              ]
+            }
+          },
+          discount: { $sum: { $ifNull: ["$purchaseDiscount", 0] } }
+        }
+      },
+      {
+        $project: {
+          totalExpense: { $subtract: ["$total", "$discount"] }
+        }
+      }
+    ]);
+
+    const totalExpense = totalExpenseResult.length > 0 ? totalExpenseResult[0].totalExpense : 0;
+
+    // `TotalExpense` を `expense.ejs` に渡す
+    res.render('expenses/expense', { expenseData: expenses, totalExpense });
   } catch (error) {
     console.error('Error fetching expenses:', error);
     res.status(500).send('Server Error');
