@@ -3,13 +3,15 @@
 <div class="container my-5">
   <h2 class="text-center mb-5">Income Statement</h2>
 
-  <!-- フォームの追加 -->
   <form action="/incomeStatements/register" method="POST">
     <!-- General Information Section -->
     <div class="card shadow-sm mb-4">
-      <div class="card-header bg-primary text-white">
-        <h2><i class="fas fa-info-circle"></i> General Information</h2>
+      <div class="card-header bg-info text-white d-flex align-items-center justify-content-center" style="height: 70px;">
+        <h2 class="mb-0">
+            <i class="fas fa-info-circle"></i> General Information
+        </h2>
       </div>
+    
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-hover">
@@ -27,9 +29,8 @@
             </thead>
             <tbody>
               <tr>
-                <td><input type="date" name="registerDate" class="form-control" placeholder="Register Date" required /></td>
-                <td><input type="text" name="customerName" class="form-control" placeholder="Customer Name" required /></td>
-                <!-- Product Nameを選択式に変更 -->
+                <td><input type="date" name="registerDate" class="form-control" required /></td>
+                <td><input type="text" name="customerName" class="form-control" required /></td>
                 <td>
                   <select name="productName" class="form-select" required>
                     <option value="">Select a Product</option>
@@ -38,11 +39,11 @@
                     <% }) %>
                   </select>
                 </td>
-                <td><input type="number" name="productPrice" class="form-control" placeholder="Product Price" required /></td>
-                <td><input type="date" name="orderDate" class="form-control" placeholder="Order Date" required /></td>
-                <td><input type="date" name="shippingDate" class="form-control" placeholder="Shipping Date" required /></td>
-                <td><input type="number" name="payment" class="form-control" placeholder="Payment" required /></td>
-                <td><input type="number" name="uncollectedPrice" class="form-control" placeholder="Uncollected Price" required /></td>
+                <td><input type="number" name="productPrice" class="form-control" required /></td>
+                <td><input type="date" name="orderDate" class="form-control" required /></td>
+                <td><input type="date" name="shippingDate" class="form-control" required /></td>
+                <td><input type="number" name="payment" class="form-control" required /></td>
+                <td><input type="number" name="uncollectedPrice" class="form-control" required /></td>
               </tr>
             </tbody>
           </table>
@@ -50,34 +51,52 @@
       </div>
     </div>
 
-    <!-- Minne Sales Details Section -->
+    <!-- Sales Details Section (Minne Sales and Income Statement Combined) -->
     <div class="card shadow-sm mb-4">
-      <div class="card-header bg-success text-white">
-        <h2><i class="fas fa-shopping-cart"></i> Minne Sales Details</h2>
+      <div class="card-header text-white d-flex align-items-center justify-content-center" style="height: 70px; background-color: orange;">
+        <h2 class="mb-0">
+            <i class="fas fa-chart-line"></i> Sales Details
+        </h2>
       </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-hover">
             <tbody>
               <tr>
-                <th>Sales</th>
-                <td><input type="number" name="sales" id="sales" class="form-control" placeholder="Sales" oninput="calculateDeposit()" /></td>
+                <th>Sales Revenue</th>
+                <td><input type="number" name="sales" id="sales" class="form-control" oninput="calculateTotals()" /></td>
+              </tr>
+              <tr>
+                <th>COGS (Cost of Goods Sold)</th>
+                <td><input type="number" name="cogs" id="cogs" class="form-control" readonly /></td>
               </tr>
               <tr>
                 <th>Sales Commission</th>
-                <td><input type="number" name="salesCommission" id="salesCommission" class="form-control" placeholder="Sales Commission" oninput="calculateDeposit()" /></td>
+                <td><input type="number" name="salesCommission" id="salesCommission" class="form-control" oninput="calculateTotals()" /></td>
               </tr>
               <tr>
                 <th>Transfer Fee</th>
-                <td><input type="number" name="transferFee" id="transferFee" class="form-control" placeholder="Transfer Fee" oninput="calculateDeposit()" /></td>
+                <td><input type="number" name="transferFee" id="transferFee" class="form-control" oninput="calculateTotals()" /></td>
               </tr>
               <tr>
                 <th>Shipping Fee</th>
-                <td><input type="number" name="shippingFee" id="shippingFee" class="form-control" placeholder="Shipping Fee" oninput="calculateDeposit()" /></td>
+                <td><input type="number" name="shippingFee" id="shippingFee" class="form-control" oninput="calculateTotals()" /></td>
               </tr>
               <tr>
-                <th>Deposit Amount</th>
-                <td><input type="text" name="depositAmount" id="depositAmount" class="form-control" placeholder="Deposit Amount" readonly /></td>
+                <th>Operating Expenses</th>
+                <td><input type="text" name="expenses" id="expenses" class="form-control" readonly /></td>
+              </tr>
+              <tr>
+                <th>Gross Profit</th>
+                <td><span id="grossProfit">0.00</span></td>
+              </tr>
+              <tr>
+                <th>Net Profit</th>
+                <td><span id="netProfit">0.00</span></td>
+              </tr>
+              <tr>
+                <th>Net Profit Ratio</th>
+                <td><span id="netRatio">0.00</span> %</td>
               </tr>
             </tbody>
           </table>
@@ -85,44 +104,14 @@
       </div>
     </div>
 
-    <!-- Income Statement Section -->
-    <div class="card shadow-sm">
-      <div class="card-header bg-warning text-white">
-        <h2><i class="fas fa-chart-line"></i> Income Statement</h2>
-      </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <label for="revenue" class="form-label">Sales Revenue:</label>
-            <input type="number" name="revenue" id="revenue" class="form-control" placeholder="Sales Revenue" oninput="calculateProfits()" />
-          </div>
-          <div class="col">
-            <label for="cogs" class="form-label">Cost of Goods Sold (COGS):</label>
-            <input type="number" name="cogs" id="cogs" class="form-control" placeholder="Cost of Goods Sold (COGS)" oninput="calculateProfits()" />
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
-            <label for="expenses" class="form-label">Operating Expenses:</label>
-            <input type="number" name="expenses" id="expenses" class="form-control" placeholder="Operating Expenses" oninput="calculateProfits()" />
-          </div>
-        </div>
-        <div class="results">
-          <h3 class="mt-4">Gross Profit: <span id="grossProfit">0.00</span></h3>
-          <h3>Net Profit: <span id="netProfit">0.00</span></h3>
-          <h3>Ratio: <span id="netRatio">0.00</span> %</h3>
-        </div>
-      </div>
-    </div>
-
-    <!-- Register Button -->
     <div class="text-center my-4">
-      <button type="submit" class="btn btn-lg btn-primary">
-        <i class="fas fa-check"></i> Register
-      </button>
+      <button type="submit" class="btn btn-lg btn-primary"><i class="fas fa-check"></i> Register</button>
     </div>
-    
   </form>
 </div>
 
+<!-- RecipesデータをJSON形式で渡す -->
+<script id="recipesData" type="application/json">
+  <%- JSON.stringify(recipes) %>
+</script>
 <script src="/js/sold.js"></script>

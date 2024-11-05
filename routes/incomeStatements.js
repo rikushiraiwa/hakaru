@@ -14,19 +14,29 @@ router.get('/incomeStatement', isAuthenticated, async (req, res) => {
     // ログイン中のユーザーの IncomeStatement データを取得
     const userIncomeStatements = await IncomeStatement.find({ user: req.user._id });
 
-    // 全てのレシピを取得（Product Name 用のドロップダウン）
+    // 全てのレシピを取得し、amountFeeの合計も計算する
     const recipes = await Recipe.find({ user: req.user._id });
+
+    // 各レシピごとにamountFeeの合計を計算し、recipesDataに格納
+    const recipesData = recipes.map(recipe => {
+      const totalAmountFee = recipe.items.reduce((acc, item) => acc + (item.amountFee || 0), 0);
+      return {
+        ...recipe.toObject(),
+        totalAmountFee, // 各レシピのamountFeeの合計
+      };
+    });
 
     // ページにデータを渡す
     res.render('incomeStatements/incomeStatement', {
       incomeStatements: userIncomeStatements,
-      recipes,
+      recipes: recipesData, // 合計を含むレシピデータを渡す
     });
   } catch (error) {
     console.error('Error fetching income statements:', error);
     res.status(500).send('Server Error');
   }
 });
+
 
 // Income Statementの新規登録（ログイン中のユーザーに関連付け）
 router.post('/register', isAuthenticated, async (req, res) => {
@@ -52,18 +62,17 @@ router.post('/register', isAuthenticated, async (req, res) => {
       }
     }
 
-    const { revenue, cogs, expenses, sales, salesCommission, transferFee, shippingFee } = req.body;
-    const grossProfit = revenue - cogs;
+    const { cogs, expenses, sales } = req.body;
+    const grossProfit = sales - cogs;
     const netProfit = grossProfit - expenses;
-    const ratio = revenue !== 0 ? ((netProfit / revenue) * 100).toFixed(2) : 0;
-    const depositAmount = sales - salesCommission - transferFee - shippingFee;
+    const ratio = sales !== 0 ? ((netProfit / sales) * 100).toFixed(2) : 0;
+
 
     const newIncomeStatement = new IncomeStatement({
       ...req.body,
       grossProfit,
       netProfit,
       ratio,
-      depositAmount,
       user: req.user._id  // ログイン中のユーザーのIDを関連付け
     });
 
@@ -122,9 +131,9 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
     const data = req.body;
 
     const depositAmount = data.sales - data.salesCommission - data.transferFee - data.shippingFee;
-    const grossProfit = data.revenue - data.cogs;
+    const grossProfit = data.sales - data.cogs;
     const netProfit = grossProfit - data.expenses;
-    const netRatio = data.revenue !== 0 ? ((netProfit / data.revenue) * 100).toFixed(2) : 0;
+    const netRatio = data.sales !== 0 ? ((netProfit / data.sales) * 100).toFixed(2) : 0;
 
     const updatedData = {
       ...data,
