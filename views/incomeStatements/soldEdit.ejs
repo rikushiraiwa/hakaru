@@ -67,6 +67,7 @@
                             </tr>
                             <tr>
                                 <th>COGS (Cost of Goods Sold)</th>
+                                <!-- サーバーサイドから渡されたcogsの初期値を直接設定 -->
                                 <td><input type="number" name="cogs" id="cogs" value="<%= cogs %>" class="form-control" readonly /></td>
                             </tr>
                             <tr>
@@ -115,5 +116,6 @@
 <!-- RecipesデータをJSON形式で渡す -->
 <script id="recipesData" type="application/json">
     <%- JSON.stringify(recipes) %>
-  </script>
-  <script src="/js/sold.js"></script>
+</script>
+<script src="/js/sold.js"></script>
+

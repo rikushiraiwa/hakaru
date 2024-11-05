@@ -102,6 +102,7 @@ router.get('/soldInfor', isAuthenticated, async (req, res) => {
   }
 });
 
+
 // Income Statement編集ページ（ログイン中のユーザーのデータのみ取得）
 router.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
   try {
@@ -113,10 +114,18 @@ router.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
       return res.status(404).send('Income Statement not found');
     }
 
+    // statementにあるproductNameに該当するレシピを取得して、totalAmountFeeをCOGSとして設定
+    const selectedRecipe = recipes.find(recipe => recipe.recipeName === statement.productName);
+    const cogs = selectedRecipe
+      ? selectedRecipe.items.reduce((acc, item) => acc + (item.amountFee || 0), 0)
+      : 0;
+
+
     res.render('incomeStatements/soldEdit', {
       ...statement.toObject(),
       recipes,
       id: statement._id,
+      cogs,  // COGSとしてtotalAmountFeeの合計を渡す
     });
   } catch (error) {
     console.error('Error fetching income statement for editing:', error);
@@ -124,13 +133,14 @@ router.get('/soldEdit/edit/:id', isAuthenticated, async (req, res) => {
   }
 });
 
+
 // Income Statementの更新（ログイン中のユーザーのデータのみ更新）
 router.put('/update/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
 
-    const depositAmount = data.sales - data.salesCommission - data.transferFee - data.shippingFee;
+    // Calculate profits and ratios
     const grossProfit = data.sales - data.cogs;
     const netProfit = grossProfit - data.expenses;
     const netRatio = data.sales !== 0 ? ((netProfit / data.sales) * 100).toFixed(2) : 0;
@@ -140,9 +150,57 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
       grossProfit,
       netProfit,
       ratio: netRatio,
-      depositAmount
     };
 
+    // Get the original income statement for product comparison
+    const oldStatement = await IncomeStatement.findOne({ _id: id, user: req.user._id });
+    if (!oldStatement) return res.status(404).send('Income Statement not found');
+
+    // Find the old recipe to restore stock values
+    const oldRecipe = await Recipe.findOne({ recipeName: oldStatement.productName, user: req.user._id });
+    if (oldRecipe) {
+      for (const item of oldRecipe.items) {
+        const stock = await Stock.findOne({ itemName: item.itemName, user: req.user._id });
+        if (!stock) continue;
+
+        // Initialize stock values if undefined
+        stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
+        stock.remainingValue = typeof stock.remainingValue === 'number' ? stock.remainingValue : stock.purchasePrice;
+
+        // Revert stock quantities
+        const newRemaining = stock.remaining + (item.amountUsage || 0);
+        const newRemainingValue = stock.remainingValue + (item.amountFee || 0);
+
+        stock.remaining = !isNaN(newRemaining) ? newRemaining : stock.purchaseQuantity;
+        stock.remainingValue = !isNaN(newRemainingValue) ? newRemainingValue : stock.purchasePrice;
+
+        await stock.save();
+      }
+    }
+
+    // Deduct stock for the new selected recipe
+    const newRecipe = await Recipe.findOne({ recipeName: data.productName, user: req.user._id });
+    if (newRecipe) {
+      for (const item of newRecipe.items) {
+        const stock = await Stock.findOne({ itemName: item.itemName, user: req.user._id });
+        if (!stock) continue;
+
+        // Initialize stock values if undefined
+        stock.remaining = typeof stock.remaining === 'number' ? stock.remaining : stock.purchaseQuantity;
+        stock.remainingValue = typeof stock.remainingValue === 'number' ? stock.remainingValue : stock.purchasePrice;
+
+        // Deduct stock quantities
+        const newRemaining = stock.remaining - (item.amountUsage || 0);
+        const newRemainingValue = stock.remainingValue - (item.amountFee || 0);
+
+        stock.remaining = !isNaN(newRemaining) ? Math.max(newRemaining, 0) : stock.purchaseQuantity;
+        stock.remainingValue = !isNaN(newRemainingValue) ? Math.max(newRemainingValue, 0) : stock.purchasePrice;
+
+        await stock.save();
+      }
+    }
+
+    // Update the IncomeStatement with the new data
     await IncomeStatement.findOneAndUpdate(
       { _id: id, user: req.user._id },
       updatedData,
@@ -155,5 +213,8 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+
+
 
 module.exports = router;
