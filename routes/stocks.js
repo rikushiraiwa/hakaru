@@ -37,6 +37,8 @@ router.post('/add', isAuthenticated, async (req, res) => {
     const dateObj = new Date(date);
     const correctedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
 
+    const unitPrice = purchasePrice / purchaseQuantity
+
     const newStock = new Stock({
       date: correctedDate,
       itemName,

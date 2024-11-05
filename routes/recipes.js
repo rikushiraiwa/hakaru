@@ -58,8 +58,8 @@ router.post('/', isAuthenticated, upload.single('recipeImage'), async (req, res)
     const newRecipe = new Recipe({
       recipeName,
       recipeImage: recipeImageUrl,
-      items: JSON.parse(items),
-      user: req.user._id  // ログイン中のユーザーのIDを設定
+      items: JSON.parse(items), // JSONパースして保存
+      user: req.user._id
     });
 
     await newRecipe.save();
@@ -69,6 +69,7 @@ router.post('/', isAuthenticated, upload.single('recipeImage'), async (req, res)
     res.status(500).send('Error creating recipe');
   }
 });
+
 
 // レシピ編集ページ（ユーザーが作成したレシピのみ表示）
 router.get('/edit/:id', isAuthenticated, async (req, res) => {
