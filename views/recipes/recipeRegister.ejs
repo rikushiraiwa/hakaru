@@ -2,47 +2,46 @@
 
 <body>
     <div class="container mt-4">
-        <h2 class="text-center">Please Add Your Recipe</h2>
+        <h2 class="text-center">レシピを追加してください</h2>
 
         <div class="mb-3 mt-3 d-flex justify-content-center">
-            <!-- Add Recipeボタン -->
+            <!-- アイテム追加ボタン -->
             <button id="addItemBtn" class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addItemModal">
-                Add Item
+                アイテムを追加
             </button>
-            <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">Delete Selected</button>
+            <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">選択したアイテムを削除</button>
         </div>
 
-        <!-- Recipe NameとImageのバリデーション用フォーム -->
+        <!-- レシピ名と画像のバリデーション用フォーム -->
         <form id="recipeForm" novalidate>
             <div class="row">
-                <!-- Recipe Nameの入力 -->
+                <!-- レシピ名の入力 -->
                 <div class="col-md-6 mb-3">
-                    <label for="recipeName">Recipe Name</label>
+                    <label for="recipeName">レシピ名</label>
                     <input type="text" class="form-control" id="recipeNameInput" name="recipeName" required>
-                    <div class="valid-feedback">Looks good!</div>
-                    <div class="invalid-feedback">Please enter a Recipe Name.</div>
+                    <div class="valid-feedback">問題ありません！</div>
+                    <div class="invalid-feedback">レシピ名を入力してください。</div>
                 </div>
 
                 <!-- 画像アップロードフィールド -->
                 <div class="col-md-6 mb-3">
-                    <label for="recipeImage">Upload Recipe Image</label>
+                    <label for="recipeImage">レシピ画像をアップロード</label>
                     <input type="file" class="form-control" id="recipeImage" name="recipeImage" accept="image/*" required>
-                    <div class="valid-feedback">Image uploaded successfully!</div>
-                    <div class="invalid-feedback">Please upload an image for the recipe.</div>
+                    <div class="valid-feedback">画像が正常にアップロードされました！</div>
+                    <div class="invalid-feedback">レシピの画像をアップロードしてください。</div>
                 </div>
             </div>
         </form>
 
-
         <table id="recipeTable" class="table table-bordered table-striped table-hover table-sm">
             <thead class="thead-light">
                 <tr>
-                    <th>Select</th>
-                    <th>Item Name</th>
-                    <th>Content</th>
-                    <th>Unit Price</th>
-                    <th>Amount Usage</th>
-                    <th>Amount Fee</th>
+                    <th>選択</th>
+                    <th>アイテム名</th>
+                    <th>内容</th>
+                    <th>単価</th>
+                    <th>使用量</th>
+                    <th>使用料金</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,42 +49,42 @@
             </tbody>
         </table>
 
-        <!-- Add Recipe Modal -->
+        <!-- レシピ追加モーダル -->
         <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="addItemModalLabel">新しいアイテムを追加</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- レシピ追加用のフォーム -->
+                        <!-- アイテム追加用フォーム -->
                         <form id="modalItemForm" class="needs-validation" novalidate>
                             <div class="form-group">
-                                <label for="itemName">Item Name</label>
+                                <label for="itemName">アイテム名</label>
                                 <select name="itemName" id="itemSelect" class="form-select" required onchange="toggleNewItemField()">
-                                    <option value="">Select an item</option>
+                                    <option value="">アイテムを選択</option>
                                     <% stocks.forEach(stock => { %>
                                         <option value="<%= stock.itemName %>"><%= stock.itemName %></option>
                                     <% }) %>
-                                    <option value="new">+ Add New Item</option>
+                                    <option value="new">+ 新しいアイテムを追加</option>
                                 </select>
-                                <div class="invalid-feedback">Please select an item.</div>
-                                <input type="text" id="newItemName" class="form-control mt-2" placeholder="Enter new item name" style="display:none;">
+                                <div class="invalid-feedback">アイテムを選択してください。</div>
+                                <input type="text" id="newItemName" class="form-control mt-2" placeholder="新しいアイテム名を入力" style="display:none;">
                             </div>
                             <div class="form-group">
-                                <label for="content">Content</label>
+                                <label for="content">内容</label>
                                 <input type="number" class="form-control" name="content" required>
-                                <div class="invalid-feedback">Please enter content value.</div>
+                                <div class="invalid-feedback">内容を入力してください。</div>
                             </div>
                             <div class="form-group">
-                                <label for="amountUsage">Amount Usage</label>
+                                <label for="amountUsage">使用量</label>
                                 <input type="number" class="form-control" name="amountUsage" required>
-                                <div class="invalid-feedback">Please enter amount usage.</div>
+                                <div class="invalid-feedback">使用量を入力してください。</div>
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <button type="button" class="btn btn-success m-4" onclick="addItem()">Add Item</button>
+                                <button type="button" class="btn btn-success m-4" onclick="addItem()">アイテムを追加</button>
                             </div>
                         </form>
                     </div>
@@ -95,18 +94,18 @@
 
         <!-- レシピ全体を保存 -->
         <div class="text-center mt-3">
-            <button type="button" class="btn btn-primary" id="saveRecipeBtn">Save Recipe</button>
+            <button type="button" class="btn btn-primary" id="saveRecipeBtn">レシピを保存</button>
         </div>
 
         <div class="total-container text-right mt-3">
-            <p class="font-weight-bold">Total: <span id="totalValue"></span></p>
+            <p class="font-weight-bold">合計: <span id="totalValue"></span></p>
         </div>
     </div>
 
     <!-- ローディングスピナー -->
     <div id="loadingSpinner" class="justify-content-center align-items-center" style="display:none !important; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.8); z-index:9999;">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">読み込み中...</span>
         </div>
     </div>
 

@@ -1,11 +1,11 @@
 <% layout('layout/boilerplate') %>
 
 <div class="container mt-4">
-  <h2 class="text-center mb-4">Sold Information</h2>
+  <h2 class="text-center mb-4">売上情報</h2>
 
   <div class="text-center">
     <a href="/incomeStatements/incomeStatement" class="btn btn-primary mb-4">
-      Register to Income Statement
+      損益計算書を登録
     </a>
   </div>
   
@@ -14,13 +14,13 @@
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm">
           <div class="card-body text-center"> <!-- カード全体を中央寄せ -->
-            <h5 class="card-title">Customer: <%= statement.customerName %></h5>
+            <h5 class="card-title">顧客名: <%= statement.customerName %></h5>
             <p class="card-text">
-              <strong>Register Date:</strong> <%= statement.registerDate %><br />
-              <strong>Product Name:</strong> <%= statement.productName %><br />
-              <strong>Product Price:</strong> ¥<%= statement.productPrice %><br />
+              <strong>登録日:</strong> <%= statement.registerDate %><br />
+              <strong>製品名:</strong> <%= statement.productName %><br />
+              <strong>製品価格:</strong> ¥<%= statement.productPrice %><br />
             </p>
-            <a href="/incomeStatements/soldEdit/edit/<%= statement._id %>" class="btn btn-warning btn-sm">Edit</a>
+            <a href="/incomeStatements/soldEdit/edit/<%= statement._id %>" class="btn btn-warning btn-sm">編集</a>
           </div>
         </div>
       </div>
@@ -28,11 +28,11 @@
   </div>
 
   <!-- ページネーションの追加 -->
-  <nav aria-label="Page navigation example">
+  <nav aria-label="ページナビゲーション例">
     <ul class="pagination justify-content-center">
       <% if (currentPage > 1) { %>
         <li class="page-item">
-          <a class="page-link" href="/incomeStatements/soldInfor?page=<%= currentPage - 1 %>" aria-label="Previous">
+          <a class="page-link" href="/incomeStatements/soldInfor?page=<%= currentPage - 1 %>" aria-label="前のページ">
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
@@ -44,7 +44,7 @@
       <% } %>
       <% if (currentPage < totalPages) { %>
         <li class="page-item">
-          <a class="page-link" href="/incomeStatements/soldInfor?page=<%= currentPage + 1 %>" aria-label="Next">
+          <a class="page-link" href="/incomeStatements/soldInfor?page=<%= currentPage + 1 %>" aria-label="次のページ">
             <span aria-hidden="true">&raquo;</span>
           </a>
         </li>

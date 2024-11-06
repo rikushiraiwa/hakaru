@@ -58,36 +58,3 @@ function sortByDate() {
 }
 
 
-// 経費を追加
-function addExpense() {
-    const table = document.getElementById("expenseTable").querySelector("tbody");
-    const form = document.getElementById("expenseForm");
-
-    const newRow = document.createElement("tr");
-    const data = [
-        form.date.value,
-        form.content.value,
-        form.supplier.value,
-        form.purchase.value,
-        form.consumable.value,
-        form.otherExpense.value,
-        form.shippingCost.value,
-        form.purchaseDiscount.value,
-        form.cash.value,
-        form.credit.value
-    ];
-
-    data.forEach((value) => {
-        const td = document.createElement("td");
-        td.textContent = value || "0";
-        newRow.appendChild(td);
-    });
-
-    newRow.setAttribute("onclick", "toggleRowSelection(this)");  // 行をクリックして選択できるように
-    table.appendChild(newRow);
-    calculateTotal();
-
-    // フォームのリセットとモーダルを閉じる
-    form.reset();
-    $('#addExpenseModal').modal('hide');
-}

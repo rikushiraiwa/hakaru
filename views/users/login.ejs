@@ -4,9 +4,9 @@
   <div class="container d-flex justify-content-center align-items-center vh-100"  style="margin-top: -30px;">
     <div class="card shadow-sm" style="width: 24rem;">
       <div class="card-body">
-        <h2 class="card-title text-center mb-4">Login</h2>
+        <h2 class="card-title text-center mb-4">ログイン</h2>
 
-        <!-- Error Message -->
+        <!-- エラーメッセージ -->
         <% if (error && error.length > 0) { %>
           <div class="alert alert-danger" role="alert">
             <%= error %>
@@ -20,26 +20,26 @@
         <% } %>
 
         <form action="/users/login" method="POST">
-          <!-- Username -->
+          <!-- ユーザー名 -->
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+            <label for="username" class="form-label">ユーザー名</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="ユーザー名を入力" required>
           </div>
 
-          <!-- Password -->
+          <!-- パスワード -->
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+            <label for="password" class="form-label">パスワード</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="パスワードを入力" required>
           </div>
 
-          <!-- Login Button -->
+          <!-- ログインボタン -->
           <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-primary">ログイン</button>
           </div>
         </form>
 
-        <!-- Register Link -->
-        <p class="text-center mt-3">Don't have an account? <a href="/register">Register here</a></p>
+        <!-- 登録リンク -->
+        <p class="text-center mt-3">アカウントをお持ちでないですか？ <a href="/register">こちらで登録</a></p>
       </div>
     </div>
   </div>

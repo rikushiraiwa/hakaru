@@ -2,13 +2,13 @@
 
 <body>
     <div class="container mt-4">
-        <h2 class="text-center">Please Add Your Expense</h2>
+        <h2 class="text-center">経費を追加してください</h2>
 
         <div class="mb-3 mt-3 d-flex justify-content-center">
-            <button class="btn btn-primary m-1" onclick="sortByDate()">Sort by Date</button>
-            <button class="btn btn-secondary m-1" data-bs-toggle="modal" data-bs-target="#confirmModal">Download Data</button>
-            <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">Delete Selected</button>
-            <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addExpenseModal">Add Expense</button>
+            <button class="btn btn-primary m-1" onclick="sortByDate()">日付でソート</button>
+            <button class="btn btn-secondary m-1" data-bs-toggle="modal" data-bs-target="#confirmModal">データをダウンロード</button>
+            <button class="btn btn-danger m-1" onclick="deleteSelectedRows()">選択を削除</button>
+            <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#addExpenseModal">経費を追加</button>
         </div>
 
         <!-- レスポンシブ対応のテーブル -->
@@ -17,17 +17,17 @@
                 <table id="expenseTable" class="table table-bordered table-striped table-hover table-sm">
                     <thead class="thead-light">
                         <tr>
-                            <th>Select</th>
-                            <th>Date</th>
-                            <th>Content</th>
-                            <th>Supplier</th>
-                            <th>Purchase</th>
-                            <th>Consumable</th>
-                            <th>Other Expense</th>
-                            <th>Shipping Cost</th>
-                            <th>Purchase Discount</th>
-                            <th>Cash</th>
-                            <th>Credit</th>
+                            <th>選択</th>
+                            <th>日付</th>
+                            <th>内容</th>
+                            <th>仕入先</th>
+                            <th>仕入れ</th>
+                            <th>消耗品</th>
+                            <th>その他の経費</th>
+                            <th>送料</th>
+                            <th>仕入れ値引き</th>
+                            <th>現金</th>
+                            <th>クレジット</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,60 +51,60 @@
             </div>
         </form>
 
-        <!-- Add Expense Modal -->
+        <!-- 経費追加用モーダル -->
         <div class="modal fade" id="addExpenseModal" tabindex="-1" role="dialog" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addExpenseModalLabel">Add New Expense</h5>
+                        <h5 class="modal-title" id="addExpenseModalLabel">新しい経費を追加</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- 経費追加用のフォーム -->
+                        <!-- 経費追加フォーム -->
                         <form id="expenseForm" action="/expenses" method="POST">
                             <div class="form-group">
-                                <label for="date">Date</label>
+                                <label for="date">日付</label>
                                 <input type="date" class="form-control" name="date" required>
                             </div>
                             <div class="form-group">
-                                <label for="content">Content</label>
+                                <label for="content">内容</label>
                                 <input type="text" class="form-control" name="content">
                             </div>
                             <div class="form-group">
-                                <label for="supplier">Supplier</label>
+                                <label for="supplier">仕入先</label>
                                 <input type="number" class="form-control" name="supplier">
                             </div>
                             <div class="form-group">
-                                <label for="purchase">Purchase</label>
+                                <label for="purchase">仕入れ</label>
                                 <input type="number" class="form-control" name="purchase">
                             </div>
                             <div class="form-group">
-                                <label for="consumable">Consumable</label>
+                                <label for="consumable">消耗品</label>
                                 <input type="number" class="form-control" name="consumable">
                             </div>
                             <div class="form-group">
-                                <label for="otherExpense">Other Expense</label>
+                                <label for="otherExpense">その他の経費</label>
                                 <input type="number" class="form-control" name="otherExpense">
                             </div>
                             <div class="form-group">
-                                <label for="shippingCost">Shipping Cost</label>
+                                <label for="shippingCost">送料</label>
                                 <input type="number" class="form-control" name="shippingCost">
                             </div>
                             <div class="form-group">
-                                <label for="purchaseDiscount">Purchase Discount</label>
+                                <label for="purchaseDiscount">仕入れ値引き</label>
                                 <input type="number" class="form-control" name="purchaseDiscount">
                             </div>
                             <div class="form-group">
-                                <label for="cash">Cash</label>
+                                <label for="cash">現金</label>
                                 <input type="number" class="form-control" name="cash">
                             </div>
                             <div class="form-group">
-                                <label for="credit">Credit</label>
+                                <label for="credit">クレジット</label>
                                 <input type="number" class="form-control" name="credit">
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-success m-4">Add Expense</button>
+                                <button type="submit" class="btn btn-success m-4">経費を追加</button>
                             </div>
                             
                         </form>
@@ -115,12 +115,12 @@
         </div>
 
         <div class="total-container text-right">
-            <p class="font-weight-bold">Total: ￥<span id="totalValue"><%= Math.floor(totalExpense) %></span></p>
+            <p class="font-weight-bold">合計: ￥<span id="totalValue"><%= Math.floor(totalExpense) %></span></p>
         </div>
                 
     </div>
 
-    <!-- Confirm Modal for Downloading and Deleting -->
+    <!-- ダウンロードと削除の確認モーダル -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

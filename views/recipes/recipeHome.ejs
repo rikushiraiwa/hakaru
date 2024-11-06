@@ -1,11 +1,11 @@
 <% layout('layout/boilerplate') %>
 
 <div class="container mt-4">
-    <h2 class="text-center">Registered Recipes</h2>
+    <h2 class="text-center">登録されたレシピ</h2>
 
     <div class="text-center mt-4 mb-3">
         <a href="/recipes/recipeRegister" class="btn btn-primary mb-4">
-          Register New Recipe
+          新しいレシピを登録
         </a>
     </div>    
     
@@ -18,11 +18,11 @@
                         <img src="<%= recipe.recipeImage %>" class="card-img-top" alt="<%= recipe.recipeName %>">
                     <% } else { %>
                         <!-- 画像がない場合のプレースホルダー -->
-                        <img src="/path/to/default-image.jpg" class="card-img-top" alt="Default Image">
+                        <img src="/path/to/default-image.jpg" class="card-img-top" alt="デフォルト画像">
                     <% } %>
                     <div class="card-body text-center">
                         <h5 class="card-title"><%= recipe.recipeName %></h5>
-                        <a href="/recipes/edit/<%= recipe._id %>" class="btn btn-primary btn-sm">Edit Recipe</a>
+                        <a href="/recipes/edit/<%= recipe._id %>" class="btn btn-primary btn-sm">レシピを編集</a>
                     </div>
                 </div>
             </div>
@@ -30,11 +30,11 @@
     </div>
 
     <!-- ページネーションを追加する場合 -->
-    <nav aria-label="Page navigation example">
+    <nav aria-label="ページナビゲーション例">
       <ul class="pagination justify-content-center">
         <% if (currentPage > 1) { %>
           <li class="page-item">
-            <a class="page-link" href="/recipeHome?page=<%= currentPage - 1 %>" aria-label="Previous">
+            <a class="page-link" href="/recipeHome?page=<%= currentPage - 1 %>" aria-label="前のページ">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
@@ -46,7 +46,7 @@
         <% } %>
         <% if (currentPage < totalPages) { %>
           <li class="page-item">
-            <a class="page-link" href="/recipeHome?page=<%= currentPage + 1 %>" aria-label="Next">
+            <a class="page-link" href="/recipeHome?page=<%= currentPage + 1 %>" aria-label="次のページ">
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>
@@ -54,4 +54,3 @@
       </ul>
     </nav>
 </div>
-

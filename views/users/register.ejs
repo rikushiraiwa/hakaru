@@ -4,29 +4,29 @@
   <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-sm" style="width: 24rem;">
       <div class="card-body">
-        <h2 class="card-title text-center mb-4">Register</h2>
+        <h2 class="card-title text-center mb-4">登録</h2>
 
         <form action="/users/register" method="POST">
-          <!-- Username -->
+          <!-- ユーザー名 -->
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+            <label for="username" class="form-label">ユーザー名</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="ユーザー名を入力" required>
           </div>
 
-          <!-- Password -->
+          <!-- パスワード -->
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+            <label for="password" class="form-label">パスワード</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="パスワードを入力" required>
           </div>
 
-          <!-- Register Button -->
+          <!-- 登録ボタン -->
           <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">登録</button>
           </div>
         </form>
 
-        <!-- Login Link -->
-        <p class="text-center mt-3">Already have an account? <a href="/users/login">Login here</a></p>
+        <!-- ログインリンク -->
+        <p class="text-center mt-3">すでにアカウントをお持ちですか？ <a href="/users/login">こちらでログイン</a></p>
       </div>
     </div>
   </div>

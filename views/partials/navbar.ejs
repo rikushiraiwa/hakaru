@@ -1,24 +1,24 @@
 <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Hakaru</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="ナビゲーションの切り替え">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-link" href="/">Home</a>
-                <a class="nav-link" href="/expenses">Expense</a>
-                <a class="nav-link" href="/recipes/recipeHome">Recipe</a>
-                <a class="nav-link" href="/stocks/stockHome">Stock</a>
-                <a class="nav-link" href="/incomeStatements/soldInfor">Sold Information</a>
+                <a class="nav-link" href="/">ホーム</a>
+                <a class="nav-link" href="/expenses">経費</a>
+                <a class="nav-link" href="/recipes/recipeHome">レシピ</a>
+                <a class="nav-link" href="/stocks/stockHome">在庫</a>
+                <a class="nav-link" href="/incomeStatements/soldInfor">売上情報</a>
             </div>
             <div class="navbar-nav ms-auto">
                 <% if (user) { %>  <!-- ユーザーがログインしているかチェック -->
-                    <a class="nav-link" href="#">Welcome, <%= user.username %></a>
-                    <a class="nav-link" href="/logout">Logout</a>
+                    <a class="nav-link" href="#">ようこそ <%= user.username %> さん！</a>
+                    <a class="nav-link" href="/logout">ログアウト</a>
                 <% } else { %>  <!-- ユーザーがログインしていない場合 -->
-                    <a class="nav-link" href="/login">Login</a>
-                    <a class="nav-link" href="/register">Register User</a>
+                    <a class="nav-link" href="/login">ログイン</a>
+                    <a class="nav-link" href="/register">ユーザー登録</a>
                 <% } %>
             </div>
         </div>
