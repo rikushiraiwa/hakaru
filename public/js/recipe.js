@@ -6,22 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // 選択された行を削除
 function deleteSelectedRows() {
     const checkboxes = document.querySelectorAll('input[name="selectRow"]:checked'); // 選択されたチェックボックスを取得
-    const rows = Array.from(document.querySelectorAll('#recipeTable tbody tr'));
 
     checkboxes.forEach(checkbox => {
         const row = checkbox.closest('tr'); // チェックボックスが含まれている行を取得
-        const rowIndex = rows.indexOf(row); // 行のインデックスを取得
+        const itemId = row.getAttribute('data-item-id'); // data-item-id属性からIDを取得
 
-        if (rowIndex > -1) {
-            tempRecipeItems.splice(rowIndex, 1); // tempRecipeItemsから対応するアイテムを削除
-        }
+        // tempRecipeItemsから一致するIDを持つアイテムを削除
+        tempRecipeItems = tempRecipeItems.filter(item => item.id !== itemId);
 
-        row.remove(); // テーブルから行を削除
+        // テーブルから行を削除
+        row.remove();
     });
 
     calculateTotal(); // 合計を再計算
 }
-
 
 // 合計の計算
 function calculateTotal() {
@@ -54,40 +52,38 @@ function toggleNewItemField() {
 
 // レシピを追加
 function addItem() {
-    const form = document.getElementById("modalItemForm"); // モーダル内のフォーム
+    const form = document.getElementById("modalItemForm");
     const itemSelect = document.getElementById("itemSelect");
     const newItemNameInput = document.getElementById("newItemName");
 
-    // バリデーションが通らない場合
     if (!form.checkValidity()) {
-        form.classList.add('was-validated');  // ブートストラップのバリデーションスタイルを適用
-        return;  // バリデーションが失敗した場合は追加をキャンセル
+        form.classList.add('was-validated');
+        return;
     }
 
-    // フォームが有効ならアイテムを追加
     const selectedItem = itemSelect.value;
     const itemName = selectedItem === "new" ? newItemNameInput.value : selectedItem;
     const content = form.content.value || 0;
     const amountUsage = form.amountUsage.value || 0;
 
-    // 選択されたItemNameに対応するUnitPriceをセット
     const selectedStock = stocks.find(stock => stock.itemName === itemName);
     const unitPrice = selectedStock ? selectedStock.unitPrice : 0;
     const amountFee = unitPrice * amountUsage;
 
     const newItem = {
+        id: `${itemName}-${Date.now()}`, // 一意のID
         itemName,
         content,
-        unitPrice: unitPrice || 0,
-        amountUsage: amountUsage || 0,
-        amountFee: amountFee || 0
+        unitPrice,
+        amountUsage,
+        amountFee
     };
 
     tempRecipeItems.push(newItem);
 
-    // 新しいアイテムをテーブルに追加
     const table = document.getElementById("recipeTable").querySelector("tbody");
     const newRow = document.createElement("tr");
+    newRow.setAttribute('data-item-id', newItem.id); // 行に一意のIDを設定
 
     // チェックボックスのセルを追加
     const selectCell = document.createElement("td");
@@ -97,23 +93,22 @@ function addItem() {
     selectCell.appendChild(checkbox);
     newRow.appendChild(selectCell);
 
-    // 各データセルをテーブルに追加
-    Object.values(newItem).forEach((value) => {
+    // アイテムの内容を各セルに追加
+    Object.values(newItem).forEach((value, index) => {
+        if (index === 0) return; // IDをスキップ
         const td = document.createElement("td");
         td.textContent = value;
         newRow.appendChild(td);
     });
 
     table.appendChild(newRow);
-
-    // 合計を再計算
     calculateTotal();
 
-    // フォームのリセットとモーダルの閉じる処理
     form.reset();
     form.classList.remove('was-validated');
     $('#addItemModal').modal('hide');
 }
+
 
 
 
