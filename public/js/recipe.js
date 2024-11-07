@@ -6,9 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
 // 選択された行を削除
 function deleteSelectedRows() {
     const checkboxes = document.querySelectorAll('input[name="selectRow"]:checked'); // 選択されたチェックボックスを取得
+    const rows = Array.from(document.querySelectorAll('#recipeTable tbody tr'));
+
     checkboxes.forEach(checkbox => {
-        checkbox.closest('tr').remove(); // チェックボックスが含まれている行を削除
+        const row = checkbox.closest('tr'); // チェックボックスが含まれている行を取得
+        const rowIndex = rows.indexOf(row); // 行のインデックスを取得
+
+        if (rowIndex > -1) {
+            tempRecipeItems.splice(rowIndex, 1); // tempRecipeItemsから対応するアイテムを削除
+        }
+
+        row.remove(); // テーブルから行を削除
     });
+
     calculateTotal(); // 合計を再計算
 }
 
@@ -175,4 +185,25 @@ document.addEventListener('DOMContentLoaded', () => {
             spinner.style.display = 'none';  // ローディングスピナーを非表示にする
         });
     }
+});
+
+
+ // Enterキーでフォームが送信されないように設定
+ document.addEventListener('DOMContentLoaded', () => {
+    const recipeForm = document.getElementById('recipeForm');
+    const modalItemForm = document.getElementById('modalItemForm');
+
+    // recipeFormでEnterキーによる送信を防止
+    recipeForm.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+
+    // modalItemFormでEnterキーによる送信を防止
+    modalItemForm.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
 });

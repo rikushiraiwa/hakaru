@@ -3,7 +3,7 @@
 <div class="container my-5">
   <h2 class="text-center mb-5">損益計算書</h2>
 
-  <form action="/incomeStatements/register" method="POST">
+  <form action="/incomeStatements/register" method="POST" novalidate id="incomeStatementForm">
     <!-- 一般情報セクション -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-info text-white d-flex align-items-center justify-content-center" style="height: 70px;">
@@ -11,47 +11,66 @@
             <i class="fas fa-info-circle"></i> 一般情報
         </h2>
       </div>
-    
+
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr>
-                <th>登録日</th>
-                <th>顧客名</th>
-                <th>製品名</th>
-                <th>製品価格</th>
-                <th>注文日</th>
-                <th>発送日</th>
-                <th>支払い金額</th>
-                <th>未収金額</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><input type="date" name="registerDate" class="form-control" required /></td>
-                <td><input type="text" name="customerName" class="form-control" required /></td>
-                <td>
-                  <select name="productName" class="form-select" required>
-                    <option value="">製品を選択</option>
-                    <% recipes.forEach(function(recipe) { %>
-                      <option value="<%= recipe.recipeName %>"><%= recipe.recipeName %></option>
-                    <% }) %>
-                  </select>
-                </td>
-                <td><input type="number" name="productPrice" class="form-control" required /></td>
-                <td><input type="date" name="orderDate" class="form-control" required /></td>
-                <td><input type="date" name="shippingDate" class="form-control" required /></td>
-                <td><input type="number" name="payment" class="form-control" required /></td>
-                <td><input type="number" name="uncollectedPrice" class="form-control" required /></td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- 縦並びの入力フォーム -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="registerDate">登録日</label>
+            <input type="date" name="registerDate" id="registerDate" class="form-control" required />
+            <div class="invalid-feedback">登録日を入力してください。</div>
+          </div>
+          <div class="col-md-6">
+            <label for="customerName">顧客名</label>
+            <input type="text" name="customerName" id="customerName" class="form-control" required />
+            <div class="invalid-feedback">顧客名を入力してください。</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="productName">製品名</label>
+            <select name="productName" id="productName" class="form-select" required>
+              <option value="">製品を選択</option>
+              <% recipes.forEach(function(recipe) { %>
+                <option value="<%= recipe.recipeName %>"><%= recipe.recipeName %></option>
+              <% }) %>
+            </select>
+            <div class="invalid-feedback">製品名を選択してください。</div>
+          </div>
+          <div class="col-md-6">
+            <label for="productPrice">製品価格</label>
+            <input type="number" name="productPrice" id="productPrice" class="form-control" required />
+            <div class="invalid-feedback">製品価格を入力してください。</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="orderDate">注文日</label>
+            <input type="date" name="orderDate" id="orderDate" class="form-control" required />
+            <div class="invalid-feedback">注文日を入力してください。</div>
+          </div>
+          <div class="col-md-6">
+            <label for="shippingDate">発送日</label>
+            <input type="date" name="shippingDate" id="shippingDate" class="form-control" required />
+            <div class="invalid-feedback">発送日を入力してください。</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="payment">支払い金額</label>
+            <input type="number" name="payment" id="payment" class="form-control" required />
+            <div class="invalid-feedback">支払い金額を入力してください。</div>
+          </div>
+          <div class="col-md-6">
+            <label for="uncollectedPrice">未収金額</label>
+            <input type="number" name="uncollectedPrice" id="uncollectedPrice" class="form-control" required />
+            <div class="invalid-feedback">未収金額を入力してください。</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 売上詳細セクション (Minne Salesと損益計算書の統合) -->
+    <!-- 売上詳細セクション -->
     <div class="card shadow-sm mb-4">
       <div class="card-header text-white d-flex align-items-center justify-content-center" style="height: 70px; background-color: orange;">
         <h2 class="mb-0">
@@ -64,7 +83,10 @@
             <tbody>
               <tr>
                 <th>売上高</th>
-                <td><input type="number" name="sales" id="sales" class="form-control" oninput="calculateTotals()" /></td>
+                <td>
+                  <input type="number" name="sales" id="sales" class="form-control" oninput="calculateTotals()" required />
+                  <div class="invalid-feedback">売上高を入力してください。</div>
+                </td>
               </tr>
               <tr>
                 <th>売上原価 (COGS)</th>
@@ -72,15 +94,24 @@
               </tr>
               <tr>
                 <th>販売手数料</th>
-                <td><input type="number" name="salesCommission" id="salesCommission" class="form-control" oninput="calculateTotals()" /></td>
+                <td>
+                  <input type="number" name="salesCommission" id="salesCommission" class="form-control" oninput="calculateTotals()" required />
+                  <div class="invalid-feedback">販売手数料を入力してください。</div>
+                </td>
               </tr>
               <tr>
                 <th>振込手数料</th>
-                <td><input type="number" name="transferFee" id="transferFee" class="form-control" oninput="calculateTotals()" /></td>
+                <td>
+                  <input type="number" name="transferFee" id="transferFee" class="form-control" oninput="calculateTotals()" required />
+                  <div class="invalid-feedback">振込手数料を入力してください。</div>
+                </td>
               </tr>
               <tr>
                 <th>送料</th>
-                <td><input type="number" name="shippingFee" id="shippingFee" class="form-control" oninput="calculateTotals()" /></td>
+                <td>
+                  <input type="number" name="shippingFee" id="shippingFee" class="form-control" oninput="calculateTotals()" required />
+                  <div class="invalid-feedback">送料を入力してください。</div>
+                </td>
               </tr>
               <tr>
                 <th>営業経費</th>
@@ -115,3 +146,4 @@
   <%- JSON.stringify(recipes) %>
 </script>
 <script src="/js/sold.js"></script>
+

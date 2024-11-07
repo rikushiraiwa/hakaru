@@ -215,6 +215,22 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
 });
 
 
+// 損益計算書の削除
+router.delete('/delete/:id', isAuthenticated, async (req, res) => {
+  try {
+    const incomeStatement = await IncomeStatement.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    if (!incomeStatement) {
+      return res.status(404).send('Income Statement not found or you do not have permission to delete this');
+    }
+    res.redirect('/incomeStatements/soldInfor');  // 削除後に一覧ページにリダイレクト
+  } catch (error) {
+    console.error('Error deleting income statement:', error);
+    res.status(500).send('Failed to delete income statement');
+  }
+});
+
+
+
 
 
 module.exports = router;

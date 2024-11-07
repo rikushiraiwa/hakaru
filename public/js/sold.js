@@ -61,3 +61,29 @@ document.getElementById('salesCommission').addEventListener('input', calculateTo
 document.getElementById('transferFee').addEventListener('input', calculateTotals);
 document.getElementById('shippingFee').addEventListener('input', calculateTotals);
 document.querySelector('select[name="productName"]').addEventListener('change', updateCOGS);
+
+//soldEditのバリデーション
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('soldEditForm');
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+
+//incomeSatementのバリデーション
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('incomeStatementForm');
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});

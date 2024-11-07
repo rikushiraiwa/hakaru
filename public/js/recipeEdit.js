@@ -1,14 +1,25 @@
+// ページロード時に既存のレシピアイテムをtempRecipeItemsに設定
 document.addEventListener('DOMContentLoaded', () => {
-      // ページ読み込み時に合計を計算
+    tempRecipeItems = [...recipe.items]; // 初期化時に既存のアイテムをコピー
     calculateTotal();
 });
 
 // 選択された行を削除
 function deleteSelectedRows() {
     const checkboxes = document.querySelectorAll('input[name="selectRow"]:checked'); // 選択されたチェックボックスを取得
+    const rows = Array.from(document.querySelectorAll('#recipeTable tbody tr'));
+
     checkboxes.forEach(checkbox => {
-        checkbox.closest('tr').remove(); // チェックボックスが含まれている行を削除
+        const row = checkbox.closest('tr'); // チェックボックスが含まれている行を取得
+        const rowIndex = rows.indexOf(row); // 行のインデックスを取得
+
+        if (rowIndex > -1) {
+            tempRecipeItems.splice(rowIndex, 1); // tempRecipeItemsから対応するアイテムを削除
+        }
+
+        row.remove(); // テーブルから行を削除
     });
+
     calculateTotal(); // 合計を再計算
 }
 
@@ -156,8 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('items', JSON.stringify(tempRecipeItems));
     
         const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'flex';  // スピナーを表示
-
+        spinner.style.display = 'flex';
+    
         fetch(`/recipes/${recipeId}?_method=PUT`, {
             method: 'POST',
             body: formData,
@@ -165,11 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
-            window.location.href = '/recipes/recipeHome';  // 成功したらリダイレクト
+            window.location.href = '/recipes/recipeHome';
         })
         .catch((error) => {
             console.error('Error:', error);
-            spinner.style.display = 'none';  // エラーが発生した場合はスピナーを非表示にする
+            spinner.style.display = 'none';
         });
     }
     

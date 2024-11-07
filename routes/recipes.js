@@ -93,14 +93,17 @@ router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, re
       return res.status(404).send('Recipe not found or you do not have permission to update this recipe');
     }
 
+    // 新しいレシピ名があれば更新
     recipe.recipeName = recipeName;
-    if (items) {
-      recipe.items = JSON.parse(items);
-    }
+
+    // 受け取ったアイテムをパースして、既存の items に上書きする
+    recipe.items = JSON.parse(items);
+
+    // 画像が更新された場合
     if (req.file) {
       recipe.recipeImage = req.file.path;
     }
-
+    console.log(recipe)
     await recipe.save();
     res.json({ message: 'Recipe updated successfully' });
   } catch (error) {
@@ -108,6 +111,7 @@ router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, re
     res.status(500).json({ error: 'Failed to update recipe' });
   }
 });
+
 
 // レシピの削除（ユーザーのレシピのみ削除可能）
 router.delete('/:id', isAuthenticated, async (req, res) => {

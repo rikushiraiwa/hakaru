@@ -85,7 +85,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="content">内容</label>
-                                <input type="number" class="form-control" name="content" required>
+                                <input type="string" class="form-control" name="content" required>
                                 <div class="invalid-feedback">内容を入力してください。</div>
                             </div>
                             <div class="form-group">
@@ -141,8 +141,11 @@
 
     <!-- サーバーサイドから受け取った stocks データをクライアントサイドで使えるように定義 -->
     <script>
-        const stocks = <%- JSON.stringify(stocks) %>
+        const stocks = <%- JSON.stringify(stocks) %>;
+        const recipe = <%- JSON.stringify(recipe) %>;
     </script>
+
+
 
     <!-- JavaScriptファイルの読み込み -->
     <script src="/js/recipeEdit.js"></script>

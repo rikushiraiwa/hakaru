@@ -7,7 +7,7 @@ const recipeSchema = new Schema({
   items: [
     {
       itemName: String,
-      content: Number,
+      content: String,
       unitPrice: Number,
       amountUsage: { type: Number, default: 0 },
       amountFee: { type: Number, default: 0 }

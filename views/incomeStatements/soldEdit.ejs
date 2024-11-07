@@ -3,7 +3,7 @@
 <div class="container my-5">
     <h2 class="text-center mb-5">損益計算書</h2>
 
-    <form action="/incomeStatements/update/<%= id %>?_method=PUT" method="POST">
+    <form action="/incomeStatements/update/<%= id %>?_method=PUT" method="POST" novalidate id="soldEditForm">
         <!-- 一般情報セクション -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-info text-white d-flex align-items-center justify-content-center" style="height: 70px;">
@@ -12,40 +12,59 @@
                 </h2>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>登録日</th>
-                                <th>顧客名</th>
-                                <th>製品名</th>
-                                <th>製品価格</th>
-                                <th>注文日</th>
-                                <th>発送日</th>
-                                <th>支払い金額</th>
-                                <th>未収金額</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="date" name="registerDate" value="<%= registerDate %>" class="form-control" required /></td>
-                                <td><input type="text" name="customerName" value="<%= customerName %>" class="form-control" required /></td>
-                                <td>
-                                    <select name="productName" class="form-select" required onchange="updateCOGS()">
-                                        <option value="">製品を選択</option>
-                                        <% recipes.forEach(function(recipe) { %>
-                                            <option value="<%= recipe.recipeName %>" <%= recipe.recipeName === productName ? 'selected' : '' %>><%= recipe.recipeName %></option>
-                                        <% }) %>
-                                    </select>
-                                </td>
-                                <td><input type="number" name="productPrice" value="<%= productPrice %>" class="form-control" required /></td>
-                                <td><input type="date" name="orderDate" value="<%= orderDate %>" class="form-control" required /></td>
-                                <td><input type="date" name="shippingDate" value="<%= shippingDate %>" class="form-control" required /></td>
-                                <td><input type="number" name="payment" value="<%= payment %>" class="form-control" required /></td>
-                                <td><input type="number" name="uncollectedPrice" value="<%= uncollectedPrice %>" class="form-control" required /></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- 縦並びの入力フォーム -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="registerDate">登録日</label>
+                        <input type="date" name="registerDate" value="<%= registerDate %>" class="form-control" required />
+                        <div class="invalid-feedback">登録日を入力してください。</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customerName">顧客名</label>
+                        <input type="text" name="customerName" value="<%= customerName %>" class="form-control" required />
+                        <div class="invalid-feedback">顧客名を入力してください。</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="productName">製品名</label>
+                        <select name="productName" class="form-select" required onchange="updateCOGS()">
+                            <option value="">製品を選択</option>
+                            <% recipes.forEach(function(recipe) { %>
+                                <option value="<%= recipe.recipeName %>" <%= recipe.recipeName === productName ? 'selected' : '' %>><%= recipe.recipeName %></option>
+                            <% }) %>
+                        </select>
+                        <div class="invalid-feedback">製品名を選択してください。</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="productPrice">製品価格</label>
+                        <input type="number" name="productPrice" value="<%= productPrice %>" class="form-control" required />
+                        <div class="invalid-feedback">製品価格を入力してください。</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="orderDate">注文日</label>
+                        <input type="date" name="orderDate" value="<%= orderDate %>" class="form-control" required />
+                        <div class="invalid-feedback">注文日を入力してください。</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="shippingDate">発送日</label>
+                        <input type="date" name="shippingDate" value="<%= shippingDate %>" class="form-control" required />
+                        <div class="invalid-feedback">発送日を入力してください。</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="payment">支払い金額</label>
+                        <input type="number" name="payment" value="<%= payment %>" class="form-control" required />
+                        <div class="invalid-feedback">支払い金額を入力してください。</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="uncollectedPrice">未収金額</label>
+                        <input type="number" name="uncollectedPrice" value="<%= uncollectedPrice %>" class="form-control" required />
+                        <div class="invalid-feedback">未収金額を入力してください。</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,39 +82,53 @@
                         <tbody>
                             <tr>
                                 <th>売上高</th>
-                                <td><input type="number" name="sales" id="sales" value="<%= sales %>" class="form-control" oninput="calculateTotals()" /></td>
+                                <td>
+                                    <input type="number" name="sales" id="sales" value="<%= sales || '' %>" class="form-control" oninput="calculateTotals()" required />
+                                    <div class="invalid-feedback">売上高を入力してください。</div>
+                                </td>
                             </tr>
                             <tr>
                                 <th>売上原価 (COGS)</th>
-                                <td><input type="number" name="cogs" id="cogs" value="<%= cogs %>" class="form-control" readonly /></td>
+                                <td>
+                                    <input type="number" name="cogs" id="cogs" value="<%= cogs || '' %>" class="form-control" readonly />
+                                </td>
                             </tr>
                             <tr>
                                 <th>販売手数料</th>
-                                <td><input type="number" name="salesCommission" id="salesCommission" value="<%= salesCommission %>" class="form-control" oninput="calculateTotals()" /></td>
+                                <td>
+                                    <input type="number" name="salesCommission" id="salesCommission" value="<%= salesCommission || '' %>" class="form-control" oninput="calculateTotals()" required />
+                                    <div class="invalid-feedback">販売手数料を入力してください。</div>
+                                </td>
                             </tr>
                             <tr>
                                 <th>振込手数料</th>
-                                <td><input type="number" name="transferFee" id="transferFee" value="<%= transferFee %>" class="form-control" oninput="calculateTotals()" /></td>
+                                <td>
+                                    <input type="number" name="transferFee" id="transferFee" value="<%= transferFee || '' %>" class="form-control" oninput="calculateTotals()" required />
+                                    <div class="invalid-feedback">振込手数料を入力してください。</div>
+                                </td>
                             </tr>
                             <tr>
                                 <th>送料</th>
-                                <td><input type="number" name="shippingFee" id="shippingFee" value="<%= shippingFee %>" class="form-control" oninput="calculateTotals()" /></td>
+                                <td>
+                                    <input type="number" name="shippingFee" id="shippingFee" value="<%= shippingFee || '' %>" class="form-control" oninput="calculateTotals()" required />
+                                    <div class="invalid-feedback">送料を入力してください。</div>
+                                </td>
                             </tr>
                             <tr>
                                 <th>営業経費</th>
-                                <td><input type="text" name="expenses" id="expenses" value="<%= expenses %>" class="form-control" readonly /></td>
+                                <td><input type="text" name="expenses" id="expenses" value="<%= expenses || '' %>" class="form-control" readonly /></td>
                             </tr>
                             <tr>
                                 <th>粗利益</th>
-                                <td><span id="grossProfit"><%= grossProfit %></span></td>
+                                <td><span id="grossProfit"><%= grossProfit || 0 %></span></td>
                             </tr>
                             <tr>
                                 <th>純利益</th>
-                                <td><span id="netProfit"><%= netProfit %></span></td>
+                                <td><span id="netProfit"><%= netProfit || 0 %></span></td>
                             </tr>
                             <tr>
                                 <th>純利益率</th>
-                                <td><span id="netRatio"><%= ratio %></span> %</td>
+                                <td><span id="netRatio"><%= ratio || 0 %></span> %</td>
                             </tr>
                         </tbody>
                     </table>
@@ -103,17 +136,42 @@
             </div>
         </div>
 
-        <!-- 更新ボタン -->
+        <!-- 更新ボタンと削除ボタン -->
         <div class="d-flex justify-content-center mt-3">
-            <button type="submit" class="btn btn-lg btn-success">
+            <button type="submit" class="btn btn-lg btn-success me-3">
                 <i class="fas fa-save"></i> 更新
+            </button>
+            <button type="button" class="btn btn-lg btn-danger" data-bs-toggle="modal" data-bs-target="#deleteIncomeStatementModal">
+                <i class="fas fa-trash"></i> 削除
             </button>
         </div>
     </form>
+</div>
+
+<!-- 削除確認モーダル -->
+<div class="modal fade" id="deleteIncomeStatementModal" tabindex="-1" role="dialog" aria-labelledby="deleteIncomeStatementModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteIncomeStatementModalLabel">削除確認</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body">
+          本当にこの損益計算書を削除しますか？この操作は取り消せません。また、削除されても在庫の残量はもとに戻りません。
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          <form action="/incomeStatements/delete/<%= id %>?_method=DELETE" method="POST">
+              <button type="submit" class="btn btn-danger">削除</button>
+          </form>
+        </div>
+      </div>
+    </div>
 </div>
 
 <!-- RecipesデータをJSON形式で渡す -->
 <script id="recipesData" type="application/json">
     <%- JSON.stringify(recipes) %>
 </script>
+
 <script src="/js/sold.js"></script>

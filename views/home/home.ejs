@@ -3,10 +3,12 @@
 <body class="bg-light d-flex flex-column vh-100">
     <div class="container-fluid flex-grow-1">    
         <!-- ヘッダーセクション -->
-        <header class="bg-dark text-white text-center py-4 mt-4">
-            <h1 class="mt-3 display-4">ようこそ Hakaru へ</h1>
-            <p class="lead">効率的な在庫・レシピ管理システムをあなたの手元に</p>
-        </header>
+        <header class="professional-header text-center py-5 mt-4">
+            <div class="container">
+                <h1 class="display-4">ようこそ Hakaru へ</h1>
+                <p class="header-subtitle">効率的な在庫・レシピ管理システムをあなたの手元に</p>
+            </div>
+        </header>    
 
         <!-- メインコンテンツセクション -->
         <div class="container mt-5">
@@ -18,7 +20,7 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card text-white bg-primary shadow-sm">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">レシピ総数</h5>
+                                    <h4 class="card-title">レシピ総数</h4>
                                     <p class="card-text display-6"><%= totalRecipes %></p>
                                     <a href="/recipes/recipeHome" class="btn btn-warning">レシピを見る</a>
                                 </div>
@@ -27,7 +29,7 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card text-white bg-success shadow-sm">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">在庫総数</h5>
+                                    <h4 class="card-title">在庫総数</h4>
                                     <p class="card-text display-6"><%= totalStocks %></p>
                                     <a href="/stocks/stockHome" class="btn btn-warning">在庫を見る</a>
                                 </div>
@@ -36,7 +38,7 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card text-white bg-info shadow-sm">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">経費総額</h5>
+                                    <h4 class="card-title">経費総額</h4>
                                     <p class="card-text display-6">￥<%= totalExpenses %></p>
                                     <a href="/expenses" class="btn btn-warning">経費を見る</a>
                                 </div>
@@ -45,7 +47,7 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card text-white bg-danger shadow-sm">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title">売上総額</h5>
+                                    <h4 class="card-title">売上総額</h4>
                                     <p class="card-text display-6">￥<%= totalSales %></p>
                                     <a href="/incomeStatements/soldInfor" class="btn btn-warning">売上を見る</a>
                                 </div>
