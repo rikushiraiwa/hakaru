@@ -1,23 +1,26 @@
 // ページロード時に既存のレシピアイテムをtempRecipeItemsに設定
 document.addEventListener('DOMContentLoaded', () => {
-    tempRecipeItems = [...recipe.items]; // 初期化時に既存のアイテムをコピー
-    calculateTotal();
+    // 各アイテムに一意のIDを追加し、tempRecipeItemsにコピー
+    tempRecipeItems = recipe.items.map((item, index) => ({
+        ...item,
+        id: `${item.itemName}-${index}` // itemNameとインデックスで一意のIDを作成
+    }));
+    calculateTotal(); // 合計の計算
 });
 
 // 選択された行を削除
 function deleteSelectedRows() {
     const checkboxes = document.querySelectorAll('input[name="selectRow"]:checked'); // 選択されたチェックボックスを取得
-    const rows = Array.from(document.querySelectorAll('#recipeTable tbody tr'));
 
     checkboxes.forEach(checkbox => {
         const row = checkbox.closest('tr'); // チェックボックスが含まれている行を取得
-        const rowIndex = rows.indexOf(row); // 行のインデックスを取得
+        const itemId = row.getAttribute('data-item-id'); // data-item-id属性からIDを取得
 
-        if (rowIndex > -1) {
-            tempRecipeItems.splice(rowIndex, 1); // tempRecipeItemsから対応するアイテムを削除
-        }
+        // tempRecipeItemsから一致するIDを持つアイテムを削除
+        tempRecipeItems = tempRecipeItems.filter(item => item.id !== itemId);
 
-        row.remove(); // テーブルから行を削除
+        // テーブルから行を削除
+        row.remove();
     });
 
     calculateTotal(); // 合計を再計算

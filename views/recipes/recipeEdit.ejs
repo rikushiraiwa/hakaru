@@ -48,7 +48,7 @@
             </thead>
             <tbody>
                 <% recipe.items.forEach(function(item, index) { %>
-                    <tr>
+                    <tr data-item-id="<%= item.itemName %>-<%= index %>">
                         <td><input type="checkbox" name="selectRow" value="<%= index %>"></td>
                         <td><%= item.itemName %></td>
                         <td><%= item.content %></td>
