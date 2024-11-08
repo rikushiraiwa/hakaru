@@ -20,9 +20,10 @@ const incomeStatementRoutes = require('./routes/incomeStatements');
 const app = express();
 
 // MongoDBへの接続
-mongoose.connect('mongodb://localhost:27017/hakaru')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hakaru')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
+
 
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
@@ -75,6 +76,9 @@ app.use('/recipes', recipeRoutes);
 app.use('/stocks', stockRoutes);
 app.use('/incomeStatements', incomeStatementRoutes);
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+  });
+}
+
