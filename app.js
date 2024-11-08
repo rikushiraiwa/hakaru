@@ -69,6 +69,15 @@ app.use((req, res, next) => {
 });
 
 
+// 未ログイン時にホームページにアクセスした場合はログインページにリダイレクト
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.redirect('/home'); // ログイン済みの場合、ホームページへ
+  } else {
+    res.redirect('/login'); // 未ログインの場合、ログインページへ
+  }
+});
+
 
 // ルートの使用
 app.use('/', homeRoutes);
