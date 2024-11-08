@@ -68,9 +68,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-  res.send('Home Page'); // テスト用の応答
-});
+
 
 // ルートの使用
 app.use('/', homeRoutes);
