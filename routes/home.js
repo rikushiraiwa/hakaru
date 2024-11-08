@@ -7,7 +7,7 @@ const IncomeStatement = require('../models/IncomeStatement');
 const { isAuthenticated } = require('../middleware/auth');
 
 // ホームページルート
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const userId = req.user._id; // ログイン中のユーザーIDを取得
 
