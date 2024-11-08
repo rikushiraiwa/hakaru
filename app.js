@@ -7,6 +7,7 @@ const path = require('path');
 const methodOverride = require('method-override');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const User = require('./models/User');
 const flash = require('connect-flash');
 
@@ -35,16 +36,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
 // セッションの設定
-const sessionConfig = {
+app.use(session({
   secret: process.env.SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }), // MongoStoreを設定
   cookie: {
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1週間
   }
-};
-app.use(session(sessionConfig));
+}));
 
 // フラッシュメッセージの設定
 app.use(flash());
