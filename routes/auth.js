@@ -9,19 +9,18 @@ router.get('/register', (req, res) => {
 });
 
 // ユーザー登録処理
-router.post('/users/register', async (req, res, next) => {
+router.post('/register', async (req, res, next) => {  // パスを修正
   const { username, password } = req.body;
   try {
     const newUser = await User.register(new User({ username }), password);
-    // 登録後にログイン状態にする
     req.logIn(newUser, (err) => {
       if (err) return next(err);
       req.flash('success', 'ようこそ！登録およびログインが完了しました。');
-      res.redirect('/'); // ホーム画面へリダイレクト
+      res.redirect('/');
     });
   } catch (e) {
-    req.flash('error', e.message); // エラーメッセージはデフォルトのエラーメッセージのまま
-    res.redirect('/register');
+    req.flash('error', e.message);
+    res.redirect('/users/register'); // フラッシュメッセージと共にリダイレクト
   }
 });
 
@@ -30,9 +29,9 @@ router.get('/login', (req, res) => {
 });
 
 // ログイン処理
-router.post('/users/login', passport.authenticate('local', {
+router.post('/login', passport.authenticate('local', {
   failureFlash: 'ユーザー名またはパスワードが無効です',
-  failureRedirect: '/login'
+  failureRedirect: '/users/login'
 }), (req, res) => {
   res.redirect('/');
 });
@@ -42,7 +41,7 @@ router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) { return next(err); }
     req.flash('success', 'ログアウトしました！');
-    res.redirect('/login');
+    res.redirect('/users/login');
   });
 });
 

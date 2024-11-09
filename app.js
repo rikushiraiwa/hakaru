@@ -82,7 +82,7 @@ app.get('/', (req, res) => {
 
 // ルートの使用
 app.use('/home', homeRoutes);
-app.use(authRoutes);
+app.use('/users',authRoutes);
 app.use('/expenses', expenseRoutes);
 app.use('/recipes', recipeRoutes);
 app.use('/stocks', stockRoutes);
