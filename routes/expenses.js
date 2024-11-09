@@ -70,18 +70,17 @@ router.post('/', isAuthenticated, async (req, res) => {
   }
 });
 
-// 経費の削除（ユーザーのデータのみ削除可能）
+// 全ての経費データを削除するエンドポイント
 router.delete('/delete', isAuthenticated, async (req, res) => {
-  const { ids } = req.body;
-
   try {
-    // ログイン中のユーザーに関連する経費データのみ削除
-    await Expense.deleteMany({ _id: { $in: ids }, user: req.user._id });
-    res.redirect('/expenses');
+    // ログイン中のユーザーに関連するすべての経費データを削除
+    await Expense.deleteMany({ user: req.user._id });
+    res.status(200).json({ message: 'All expenses deleted successfully' });
   } catch (error) {
-    console.error('Error deleting expenses:', error);
-    res.status(500).send('Server Error');
+    console.error('Error deleting all expenses:', error);
+    res.status(500).json({ error: 'Server Error' });
   }
 });
+
 
 module.exports = router;

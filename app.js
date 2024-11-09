@@ -75,7 +75,7 @@ app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect('/home'); // ログイン済みの場合、ホームページへ
   } else {
-    res.redirect('/login'); // 未ログインの場合、ログインページへ
+    res.redirect('/users/login'); // 未ログインの場合、ログインページへ
   }
 });
 
@@ -88,11 +88,12 @@ app.use('/recipes', recipeRoutes);
 app.use('/stocks', stockRoutes);
 app.use('/incomeStatements', incomeStatementRoutes);
 
-// if (process.env.NODE_ENV !== 'production') {
-//   app.listen(3000, () => {
-//     console.log('Server is running on port 3000');
-//   });
-// }
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+  });
+}
 
 
 

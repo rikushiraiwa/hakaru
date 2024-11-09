@@ -24,7 +24,7 @@ document.getElementById('confirmDownload').addEventListener('click', async funct
 
     // データベースからExpenseデータを全削除するリクエストを送信
     try {
-        const response = await fetch('/expenses/delete-all', {
+        const response = await fetch('/expenses/delete', {
             method: 'DELETE',
         });
         if (response.ok) {
@@ -37,6 +37,8 @@ document.getElementById('confirmDownload').addEventListener('click', async funct
             // モーダルを閉じる
             var confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
             confirmModal.hide();
+
+            window.location.reload(); // ページ再レンダリング
         } else {
             console.error('Failed to delete data from database');
         }
