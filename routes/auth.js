@@ -25,7 +25,7 @@ router.post('/register', async (req, res, next) => {  // パスを修正
 });
 
 router.get('/login', (req, res) => {
-  res.render('users/login');
+  res.render('/users/login');
 });
 
 // ログイン処理
