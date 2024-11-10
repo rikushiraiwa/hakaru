@@ -71,7 +71,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 });
 
 // 全ての経費データを削除するエンドポイント
-router.delete('/delete', isAuthenticated, async (req, res) => {
+router.delete('/delete-all', isAuthenticated, async (req, res) => {
   try {
     // ログイン中のユーザーに関連するすべての経費データを削除
     await Expense.deleteMany({ user: req.user._id });
@@ -79,6 +79,20 @@ router.delete('/delete', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error deleting all expenses:', error);
     res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+// 選択された経費データを削除
+router.delete('/delete', isAuthenticated, async (req, res) => {
+  const { ids } = req.body; // 削除するIDの配列を取得
+
+  try {
+    // ログイン中のユーザーに関連する経費データのみ削除
+    await Expense.deleteMany({ _id: { $in: ids }, user: req.user._id });
+    res.redirect('/expenses'); // 削除後に経費ページを再レンダリング
+  } catch (error) {
+    console.error('Error deleting expenses:', error);
+    res.status(500).send('Server Error');
   }
 });
 

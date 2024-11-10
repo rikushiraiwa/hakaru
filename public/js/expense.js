@@ -24,7 +24,7 @@ document.getElementById('confirmDownload').addEventListener('click', async funct
 
     // データベースからExpenseデータを全削除するリクエストを送信
     try {
-        const response = await fetch('/expenses/delete', {
+        const response = await fetch('/expenses/delete-all', {
             method: 'DELETE',
         });
         if (response.ok) {
