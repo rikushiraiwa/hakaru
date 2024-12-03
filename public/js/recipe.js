@@ -42,11 +42,14 @@ let tempRecipeItems = [];
 function toggleNewItemField() {
     const itemSelect = document.getElementById("itemSelect");
     const newItemName = document.getElementById("newItemName");
+    const unitPriceField = document.getElementById("unitPriceField");
 
     if (itemSelect.value === "new") {
         newItemName.style.display = "block"; // 新しいアイテム入力フィールドを表示
+        unitPriceField.style.display = "block"; // 単価入力フィールドを表示
     } else {
         newItemName.style.display = "none";  // 非表示
+        unitPriceField.style.display = "none"; // 単価入力フィールドを非表示
     }
 }
 
@@ -55,6 +58,7 @@ function addItem() {
     const form = document.getElementById("modalItemForm");
     const itemSelect = document.getElementById("itemSelect");
     const newItemNameInput = document.getElementById("newItemName");
+    const unitPriceInput = document.getElementById("unitPriceInput");
 
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
@@ -66,8 +70,15 @@ function addItem() {
     const content = form.content.value || 0;
     const amountUsage = form.amountUsage.value || 0;
 
-    const selectedStock = stocks.find(stock => stock.itemName === itemName);
-    const unitPrice = selectedStock ? selectedStock.unitPrice : 0;
+    // 単価の設定
+    let unitPrice = 0;
+    if (selectedItem === "new") {
+        unitPrice = parseFloat(unitPriceInput.value) || 0; // 新しいアイテムの場合、入力値を使用
+    } else {
+        const selectedStock = stocks.find(stock => stock.itemName === itemName);
+        unitPrice = selectedStock ? selectedStock.unitPrice : 0; // 既存アイテムの場合、Stockから取得
+    }
+
     const amountFee = unitPrice * amountUsage;
 
     const newItem = {

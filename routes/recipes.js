@@ -7,6 +7,7 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 
+
 // Cloudinaryの設定
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -61,7 +62,6 @@ router.post('/', isAuthenticated, upload.single('recipeImage'), async (req, res)
       items: JSON.parse(items), // JSONパースして保存
       user: req.user._id
     });
-
     await newRecipe.save();
     res.json(newRecipe);
   } catch (err) {
@@ -73,15 +73,22 @@ router.post('/', isAuthenticated, upload.single('recipeImage'), async (req, res)
 
 // レシピ編集ページ（ユーザーが作成したレシピのみ表示）
 router.get('/edit/:id', isAuthenticated, async (req, res) => {
-  const recipe = await Recipe.findOne({ _id: req.params.id, user: req.user._id }); // ユーザーのレシピを取得
-  const stocks = await Stock.find();
+  try {
+      const recipe = await Recipe.findOne({ _id: req.params.id, user: req.user._id });
+      const stocks = await Stock.find();
 
-  if (!recipe) {
-    return res.status(404).send('Recipe not found or you do not have permission to view this recipe');
+      if (!recipe) {
+          return res.status(404).send('Recipe not found or you do not have permission to view this recipe');
+      }
+
+      res.render('recipes/recipeEdit', { recipe, stocks });
+  } catch (error) {
+      console.error("Error in recipe edit route:", error);
+      res.status(500).send('Internal Server Error');
   }
-
-  res.render('recipes/recipeEdit', { recipe, stocks });
 });
+
+
 
 // レシピの更新（ユーザーのレシピのみ更新可能）
 router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, res) => {
@@ -103,7 +110,6 @@ router.put('/:id', isAuthenticated, upload.single('recipeImage'), async (req, re
     if (req.file) {
       recipe.recipeImage = req.file.path;
     }
-    console.log(recipe)
     await recipe.save();
     res.json({ message: 'Recipe updated successfully' });
   } catch (error) {

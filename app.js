@@ -22,8 +22,12 @@ const app = express();
 
 // MongoDBへの接続
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hakaru')
-  .then(() => console.log('MongoDB connected'))
+  .then(() => {
+    console.log('MongoDB connected');
+    console.log('Using database:', mongoose.connection.db.databaseName); // 接続後にログを出力
+  })
   .catch(err => console.log(err));
+
 
 
 app.engine('ejs', engine);
@@ -87,6 +91,7 @@ app.use('/expenses', expenseRoutes);
 app.use('/recipes', recipeRoutes);
 app.use('/stocks', stockRoutes);
 app.use('/incomeStatements', incomeStatementRoutes);
+
 
 
 if (process.env.NODE_ENV !== 'production') {
